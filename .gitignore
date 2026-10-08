@@ -1,0 +1,6 @@
+# Généré ou propre à la machine (non publié)
+tagalog.html
+dist/
+audio/_*
+audio/*.tmp
+__pycache__/
