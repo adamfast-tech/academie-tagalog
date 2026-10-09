@@ -4506,7 +4506,7 @@ async function reverseName(lat,lon){
 /* Localisation basse consommation : pas de GPS précis, position récente du système acceptée, arrondie à ~1 km */
 async function locate(manual){
   if(LOC.busy)return false;
-  LOC.busy=true;LOC.err='';
+  LOC.busy=true;LOC.err='';const t0=Date.now();
   try{
     if(typeof navigator==='undefined'||!navigator.geolocation)throw {code:'unsupported'};
     const f=LOC_FREQ[S.set.locFreq]||LOC_FREQ.day;
@@ -4518,10 +4518,20 @@ async function locate(manual){
     return true;
   }catch(e){
     const code=e&&e.code;
-    LOC.err=code===1?'denied':code===3?'timeout':code==='unsupported'?'unsupported':'unavailable';
+    /* Refus instantané (personne n'a eu le temps de répondre) : blocage par le système ou refus mémorisé par le navigateur */
+    LOC.err=code===1?(Date.now()-t0<900?'blocked':'denied'):code===3?'timeout':code==='unsupported'?'unsupported':'unavailable';
     if(code===1)LOC.perm='denied';
     return false;
   }finally{LOC.busy=false;}
+}
+const IS_IOS=typeof navigator!=='undefined'&&(/iPhone|iPad|iPod/.test(navigator.userAgent||'')||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1));
+/* Explication du refus, avec les réglages à vérifier selon l'appareil */
+function locErrText(){
+  if(LOC.err==='unsupported'||LOC.perm==='unsupported')return 'Localisation indisponible ici : choisis une ville.';
+  if(LOC.err==='timeout'||LOC.err==='unavailable')return 'Position introuvable pour le moment (réseau ou GPS). Réessaie un peu plus tard, ou choisis une ville.';
+  if(IS_IOS)return 'La localisation est bloquée par l’iPhone. Vérifie : 1) Réglages → Confidentialité et sécurité → Service de localisation : activé, puis « Sites web Safari » → « Lorsque l’app est active » ; 2) dans Safari, bouton de la page (aA) → Réglages du site web → Position → Demander. Puis reviens ici et touche « Mettre à jour maintenant ».';
+  if(LOC.err==='blocked')return 'La localisation est bloquée pour ce site ou par le système : autorise-la (icône à gauche de l’adresse, ou réglages de confidentialité de l’ordinateur), puis touche « Mettre à jour maintenant ».';
+  return 'Localisation refusée : autorise-la pour ce site dans le navigateur, puis touche « Mettre à jour maintenant », ou choisis une ville.';
 }
 /* Au démarrage et au retour sur l'appli : seulement si l'utilisateur a déjà autorisé, et si c'est l'heure */
 async function locAuto(){
@@ -6337,9 +6347,7 @@ function placePanel(){
   if(auto){
     if(LOC.busy)status='Recherche de ta position…';
     else if(s.gps&&s.gps.ts)status=`${s.gps.n||'Position trouvée'}${s.gps.sub?' ('+s.gps.sub+')':''} · mise à jour ${agoFr(s.gps.ts)}`;
-    else if(LOC.perm==='denied'||LOC.err==='denied')status='Localisation refusée : autorise-la dans les réglages du navigateur, ou choisis une ville.';
-    else if(LOC.perm==='unsupported'||LOC.err==='unsupported')status='Localisation indisponible ici : choisis une ville.';
-    else if(LOC.err)status='Position introuvable pour le moment. Nice est affichée en attendant.';
+    else if(LOC.err||LOC.perm==='denied'||LOC.perm==='unsupported')status=locErrText();
     else status='Pas encore localisé : Nice est affichée en attendant.';
   }else status=p.src==='fixed'?`${p.n}${p.sub?' ('+p.sub+')':''}`:'Choisis une ville ci-dessous.';
   let body='';
@@ -6615,7 +6623,8 @@ async function doLocate(){
   const p=locate(true);if(!P.on)render();
   const ok=await p;if(!P.on)render();
   if(ok)toast('Météo de '+(S.set.gps.n||'ta position')+' activée.');
-  else toast(LOC.err==='denied'?'Localisation refusée : autorise-la dans les réglages du navigateur, ou choisis une ville.':LOC.err==='unsupported'?'Localisation indisponible ici : choisis une ville dans le Profil.':'Position introuvable pour le moment. Réessaie plus tard.');
+  else{toast(LOC.err==='timeout'||LOC.err==='unavailable'?'Position introuvable pour le moment. Réessaie plus tard.':LOC.err==='unsupported'?'Localisation indisponible ici : choisis une ville.':'Localisation bloquée : les réglages à vérifier sont indiqués dans Profil → Météo de la mascotte.');
+    if(V.tab!=='profile'&&!P.on)go('profile');setTimeout(()=>{const h=[...document.querySelectorAll('#main .section-h h2')].find(x=>x.textContent.includes('Météo'));if(h)h.scrollIntoView({block:'start',behavior:reduced()?'auto':'smooth'});},150);}
 }
 document.addEventListener('submit',e=>{
   const gs=e.target.closest('[data-act="geo-search"]');
@@ -6685,6 +6694,8 @@ function boot(){
   const wxTick=()=>{if(document.hidden||(S.set.wx&&S.set.wx!=='auto'))return;loadWeather(true).then(ch=>{if(ch&&!P.on&&!$('#modal').innerHTML)render();});};
   setInterval(wxTick,15*60e3);
   document.addEventListener('visibilitychange',()=>{if(document.hidden)return;
+    /* Retour depuis les réglages du téléphone : on revérifie l'autorisation */
+    if(LOC.perm==='denied'||LOC.err){const was=LOC.perm;locPerm().then(st=>{if(st!==was&&st!=='denied'){LOC.err='';if(!P.on&&!$('#modal').innerHTML)render();}});}
     locAuto().then(ch=>{if(ch&&!P.on&&!$('#modal').innerHTML)render();});
     loadWeather().then(ch=>{if(ch&&!P.on&&!$('#modal').innerHTML)render();});});
   if(st==='ultra')toast('Mode ultra : ta série est restée intacte.');

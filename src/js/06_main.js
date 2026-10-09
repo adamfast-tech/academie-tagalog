@@ -139,7 +139,8 @@ async function doLocate(){
   const p=locate(true);if(!P.on)render();
   const ok=await p;if(!P.on)render();
   if(ok)toast('Météo de '+(S.set.gps.n||'ta position')+' activée.');
-  else toast(LOC.err==='denied'?'Localisation refusée : autorise-la dans les réglages du navigateur, ou choisis une ville.':LOC.err==='unsupported'?'Localisation indisponible ici : choisis une ville dans le Profil.':'Position introuvable pour le moment. Réessaie plus tard.');
+  else{toast(LOC.err==='timeout'||LOC.err==='unavailable'?'Position introuvable pour le moment. Réessaie plus tard.':LOC.err==='unsupported'?'Localisation indisponible ici : choisis une ville.':'Localisation bloquée : les réglages à vérifier sont indiqués dans Profil → Météo de la mascotte.');
+    if(V.tab!=='profile'&&!P.on)go('profile');setTimeout(()=>{const h=[...document.querySelectorAll('#main .section-h h2')].find(x=>x.textContent.includes('Météo'));if(h)h.scrollIntoView({block:'start',behavior:reduced()?'auto':'smooth'});},150);}
 }
 document.addEventListener('submit',e=>{
   const gs=e.target.closest('[data-act="geo-search"]');
@@ -209,6 +210,8 @@ function boot(){
   const wxTick=()=>{if(document.hidden||(S.set.wx&&S.set.wx!=='auto'))return;loadWeather(true).then(ch=>{if(ch&&!P.on&&!$('#modal').innerHTML)render();});};
   setInterval(wxTick,15*60e3);
   document.addEventListener('visibilitychange',()=>{if(document.hidden)return;
+    /* Retour depuis les réglages du téléphone : on revérifie l'autorisation */
+    if(LOC.perm==='denied'||LOC.err){const was=LOC.perm;locPerm().then(st=>{if(st!==was&&st!=='denied'){LOC.err='';if(!P.on&&!$('#modal').innerHTML)render();}});}
     locAuto().then(ch=>{if(ch&&!P.on&&!$('#modal').innerHTML)render();});
     loadWeather().then(ch=>{if(ch&&!P.on&&!$('#modal').innerHTML)render();});});
   if(st==='ultra')toast('Mode ultra : ta série est restée intacte.');

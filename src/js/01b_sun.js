@@ -67,7 +67,7 @@ async function reverseName(lat,lon){
 /* Localisation basse consommation : pas de GPS précis, position récente du système acceptée, arrondie à ~1 km */
 async function locate(manual){
   if(LOC.busy)return false;
-  LOC.busy=true;LOC.err='';
+  LOC.busy=true;LOC.err='';const t0=Date.now();
   try{
     if(typeof navigator==='undefined'||!navigator.geolocation)throw {code:'unsupported'};
     const f=LOC_FREQ[S.set.locFreq]||LOC_FREQ.day;
@@ -79,10 +79,20 @@ async function locate(manual){
     return true;
   }catch(e){
     const code=e&&e.code;
-    LOC.err=code===1?'denied':code===3?'timeout':code==='unsupported'?'unsupported':'unavailable';
+    /* Refus instantané (personne n'a eu le temps de répondre) : blocage par le système ou refus mémorisé par le navigateur */
+    LOC.err=code===1?(Date.now()-t0<900?'blocked':'denied'):code===3?'timeout':code==='unsupported'?'unsupported':'unavailable';
     if(code===1)LOC.perm='denied';
     return false;
   }finally{LOC.busy=false;}
+}
+const IS_IOS=typeof navigator!=='undefined'&&(/iPhone|iPad|iPod/.test(navigator.userAgent||'')||(navigator.platform==='MacIntel'&&navigator.maxTouchPoints>1));
+/* Explication du refus, avec les réglages à vérifier selon l'appareil */
+function locErrText(){
+  if(LOC.err==='unsupported'||LOC.perm==='unsupported')return 'Localisation indisponible ici : choisis une ville.';
+  if(LOC.err==='timeout'||LOC.err==='unavailable')return 'Position introuvable pour le moment (réseau ou GPS). Réessaie un peu plus tard, ou choisis une ville.';
+  if(IS_IOS)return 'La localisation est bloquée par l’iPhone. Vérifie : 1) Réglages → Confidentialité et sécurité → Service de localisation : activé, puis « Sites web Safari » → « Lorsque l’app est active » ; 2) dans Safari, bouton de la page (aA) → Réglages du site web → Position → Demander. Puis reviens ici et touche « Mettre à jour maintenant ».';
+  if(LOC.err==='blocked')return 'La localisation est bloquée pour ce site ou par le système : autorise-la (icône à gauche de l’adresse, ou réglages de confidentialité de l’ordinateur), puis touche « Mettre à jour maintenant ».';
+  return 'Localisation refusée : autorise-la pour ce site dans le navigateur, puis touche « Mettre à jour maintenant », ou choisis une ville.';
 }
 /* Au démarrage et au retour sur l'appli : seulement si l'utilisateur a déjà autorisé, et si c'est l'heure */
 async function locAuto(){

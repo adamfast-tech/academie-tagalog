@@ -289,9 +289,7 @@ function placePanel(){
   if(auto){
     if(LOC.busy)status='Recherche de ta position…';
     else if(s.gps&&s.gps.ts)status=`${s.gps.n||'Position trouvée'}${s.gps.sub?' ('+s.gps.sub+')':''} · mise à jour ${agoFr(s.gps.ts)}`;
-    else if(LOC.perm==='denied'||LOC.err==='denied')status='Localisation refusée : autorise-la dans les réglages du navigateur, ou choisis une ville.';
-    else if(LOC.perm==='unsupported'||LOC.err==='unsupported')status='Localisation indisponible ici : choisis une ville.';
-    else if(LOC.err)status='Position introuvable pour le moment. Nice est affichée en attendant.';
+    else if(LOC.err||LOC.perm==='denied'||LOC.perm==='unsupported')status=locErrText();
     else status='Pas encore localisé : Nice est affichée en attendant.';
   }else status=p.src==='fixed'?`${p.n}${p.sub?' ('+p.sub+')':''}`:'Choisis une ville ci-dessous.';
   let body='';
