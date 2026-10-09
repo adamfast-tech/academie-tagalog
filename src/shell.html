@@ -527,6 +527,9 @@ svg.b *{animation:none!important}
 @keyframes vt-out-back{to{opacity:0;transform:translateX(34px)}}
 @keyframes vt-in-back{from{opacity:0;transform:translateX(-46px)}}
 
+/* ---------- Zoom bloqué (réglage « Zoom à deux doigts » désactivé) ---------- */
+html.nozoom,html.nozoom body{touch-action:pan-x pan-y}
+button,a,select,label,.node,.tile,.opt{touch-action:manipulation}
 /* ---------- Lieu de la météo ---------- */
 .wx-top{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .wx-loc{display:inline-flex;align-items:center;gap:5px;border:2px solid var(--line);background:var(--surface);color:var(--dagat);border-radius:99px;padding:2px 10px 2px 7px;font-weight:800;font-size:.78rem;cursor:pointer}
@@ -534,7 +537,7 @@ svg.b *{animation:none!important}
 .wx-loc:disabled{opacity:.6;cursor:default}
 select.sel{appearance:none;-webkit-appearance:none;min-height:44px;max-width:100%;padding:8px 38px 8px 12px;border-radius:12px;border:2px solid var(--line);border-bottom-width:4px;
   background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='%23778' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 10px center/18px;
-  color:var(--ink);font:inherit;font-weight:700;font-size:.92rem}
+  color:var(--ink);font:inherit;font-weight:700;font-size:1rem}
 select.sel:focus-visible{outline:3px solid var(--araw);outline-offset:2px}
 select.sel:disabled{opacity:.55}
 .geo-grid{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px 14px;align-items:center}

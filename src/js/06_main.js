@@ -2,6 +2,15 @@
    06 — Démarrage, navigation, événements
    ========================================================= */
 const ORIG_THEME=document.documentElement.getAttribute('data-theme');
+/* Zoom à deux doigts bloqué par défaut (réglable dans le Profil) : l'affichage reste calé sur l'écran */
+const VP_ZOOM='width=device-width, initial-scale=1, viewport-fit=cover',VP_FIXED='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover';
+function applyZoom(){
+  const z=!!S.set.zoom;document.documentElement.classList.toggle('nozoom',!z);
+  const m=document.querySelector('meta[name="viewport"]');if(m)m.setAttribute('content',z?VP_ZOOM:VP_FIXED);
+}
+/* Safari iOS ignore user-scalable=no : on bloque aussi le geste de pincement */
+['gesturestart','gesturechange'].forEach(t=>document.addEventListener(t,e=>{if(!S.set.zoom)e.preventDefault();},{passive:false}));
+document.addEventListener('touchmove',e=>{if(!S.set.zoom&&e.touches&&e.touches.length>1)e.preventDefault();},{passive:false});
 function applyTheme(){
   const r=document.documentElement;
   if(S.set.theme==='light'||S.set.theme==='dark')r.setAttribute('data-theme',S.set.theme);
@@ -171,7 +180,7 @@ document.addEventListener('input',e=>{
 document.addEventListener('change',e=>{
   const t=e.target;
   if(t.dataset&&t.dataset.set==='ultra'){setUltra(t.checked);}
-  else if(t.dataset&&t.dataset.set){S.set[t.dataset.set]=t.checked;if(t.dataset.set==='zen'&&!t.checked)syncHearts();save();render();const n=document.getElementById(t.id);if(n)try{n.focus({preventScroll:true});}catch(e){}}
+  else if(t.dataset&&t.dataset.set){S.set[t.dataset.set]=t.checked;if(t.dataset.set==='zen'&&!t.checked)syncHearts();if(t.dataset.set==='zoom')applyZoom();save();render();const n=document.getElementById(t.id);if(n)try{n.focus({preventScroll:true});}catch(e){}}
   else if(t.id==='geoReg'){V.geoReg=t.value;V.geoDep=null;render();}
   else if(t.id==='geoDep'){V.geoDep=t.value;render();}
   else if(t.id==='geoCity'){const G=TL.GEO||[];const reg=G.find(r=>r[0]===V.geoReg)||G.find(r=>r[0]===(S.set.place&&S.set.place.reg))||G[0];
@@ -201,7 +210,7 @@ document.addEventListener('keydown',e=>{
 function boot(){
   load();rollDay();syncHearts();
   const st=checkStreak();
-  TTS.init();AUDIO.load();applyTheme();Cloud.init();
+  TTS.init();AUDIO.load();applyTheme();applyZoom();Cloud.init();
   const h=(location.hash||'').replace('#','');if(TABS.some(t=>t.id===h))V.tab=h;
   V.enter=true;render();
   loadWeather().then(ch=>{if(ch&&!P.on)render();});

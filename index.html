@@ -2,7 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="viewport" id="vp" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
 <meta name="description" content="Apprends le tagalog depuis le français, du niveau débutant au niveau expert : leçons courtes, exercices, histoires, conjugaison et baybayin.">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="icon" href="icons/icon.svg" type="image/svg+xml">
@@ -541,6 +541,9 @@ svg.b *{animation:none!important}
 @keyframes vt-out-back{to{opacity:0;transform:translateX(34px)}}
 @keyframes vt-in-back{from{opacity:0;transform:translateX(-46px)}}
 
+/* ---------- Zoom bloqué (réglage « Zoom à deux doigts » désactivé) ---------- */
+html.nozoom,html.nozoom body{touch-action:pan-x pan-y}
+button,a,select,label,.node,.tile,.opt{touch-action:manipulation}
 /* ---------- Lieu de la météo ---------- */
 .wx-top{display:flex;flex-wrap:wrap;gap:6px;align-items:center}
 .wx-loc{display:inline-flex;align-items:center;gap:5px;border:2px solid var(--line);background:var(--surface);color:var(--dagat);border-radius:99px;padding:2px 10px 2px 7px;font-weight:800;font-size:.78rem;cursor:pointer}
@@ -548,7 +551,7 @@ svg.b *{animation:none!important}
 .wx-loc:disabled{opacity:.6;cursor:default}
 select.sel{appearance:none;-webkit-appearance:none;min-height:44px;max-width:100%;padding:8px 38px 8px 12px;border-radius:12px;border:2px solid var(--line);border-bottom-width:4px;
   background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 9l6 6 6-6' fill='none' stroke='%23778' stroke-width='2.6' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 10px center/18px;
-  color:var(--ink);font:inherit;font-weight:700;font-size:.92rem}
+  color:var(--ink);font:inherit;font-weight:700;font-size:1rem}
 select.sel:focus-visible{outline:3px solid var(--araw);outline-offset:2px}
 select.sel:disabled{opacity:.55}
 .geo-grid{display:grid;grid-template-columns:auto minmax(0,1fr);gap:10px 14px;align-items:center}
@@ -4874,7 +4877,7 @@ function defState(){return {v:1,name:'',started:Date.now(),xp:0,gems:100,hearts:
   streak:0,best:0,last:null,freezes:0,goal:20,days:{},done:{},tested:{},words:{},badges:{},stories:{},mistakes:[],
   stats:{ans:0,ok:0,lessons:0,perfect:0,conj:0,nums:0,listen:0,typed:0,early:0,late:0},
   day:{d:today(),xp:0,lessons:0,perfect:0,ok:0,combo:0,stories:0,listen:0,typed:0,conj:0,claimed:{}},
-  set:{sfx:true,tts:true,rate:.9,voice:'',listen:true,type:true,zen:false,ultra:false,unlock:false,theme:'auto',auto:true,wx:'auto',anim:true,natural:true,loc:'auto',locFreq:'day',place:null,gps:null},
+  set:{sfx:true,tts:true,rate:.9,voice:'',listen:true,type:true,zen:false,ultra:false,unlock:false,theme:'auto',auto:true,wx:'auto',anim:true,natural:true,loc:'auto',locFreq:'day',place:null,gps:null,zoom:false},
   seenWelcome:false,updated:0,owner:null};}
 let S=defState();
 function load(){
@@ -6426,6 +6429,7 @@ function renderProfile(){
     ${sw('set-listen',S.set.listen,'Exercices d’écoute')}
     ${sw('set-type',S.set.type,'Exercices au clavier','Désactive-les si tu préfères les tuiles')}
     ${sw('set-anim',S.set.anim!==false,'Animations','Transitions et effets entre les exercices')}
+    ${sw('set-zoom',!!S.set.zoom,'Zoom à deux doigts','Désactivé : l’affichage reste toujours à la taille de l’écran')}
     ${sw('set-zen',freeHearts(),'Vies illimitées',ultra()?'Inclus dans le mode ultra':'Les erreurs ne coûtent plus de vie',ultra())}
     ${sw('set-unlock',S.set.unlock,'Tout débloquer','Accès libre à toutes les leçons et histoires')}
     <div class="set-row"><label class="lbl" for="voiceSel">Voix<small>${TTS.quality==='native'?'Voix tagalog trouvée.':TTS.quality==='approx'?'Pas de voix tagalog : voix proche utilisée.':'Aucune voix détectée.'}</small></label>
@@ -6486,6 +6490,15 @@ function afterRender(){
    06 — Démarrage, navigation, événements
    ========================================================= */
 const ORIG_THEME=document.documentElement.getAttribute('data-theme');
+/* Zoom à deux doigts bloqué par défaut (réglable dans le Profil) : l'affichage reste calé sur l'écran */
+const VP_ZOOM='width=device-width, initial-scale=1, viewport-fit=cover',VP_FIXED='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover';
+function applyZoom(){
+  const z=!!S.set.zoom;document.documentElement.classList.toggle('nozoom',!z);
+  const m=document.querySelector('meta[name="viewport"]');if(m)m.setAttribute('content',z?VP_ZOOM:VP_FIXED);
+}
+/* Safari iOS ignore user-scalable=no : on bloque aussi le geste de pincement */
+['gesturestart','gesturechange'].forEach(t=>document.addEventListener(t,e=>{if(!S.set.zoom)e.preventDefault();},{passive:false}));
+document.addEventListener('touchmove',e=>{if(!S.set.zoom&&e.touches&&e.touches.length>1)e.preventDefault();},{passive:false});
 function applyTheme(){
   const r=document.documentElement;
   if(S.set.theme==='light'||S.set.theme==='dark')r.setAttribute('data-theme',S.set.theme);
@@ -6655,7 +6668,7 @@ document.addEventListener('input',e=>{
 document.addEventListener('change',e=>{
   const t=e.target;
   if(t.dataset&&t.dataset.set==='ultra'){setUltra(t.checked);}
-  else if(t.dataset&&t.dataset.set){S.set[t.dataset.set]=t.checked;if(t.dataset.set==='zen'&&!t.checked)syncHearts();save();render();const n=document.getElementById(t.id);if(n)try{n.focus({preventScroll:true});}catch(e){}}
+  else if(t.dataset&&t.dataset.set){S.set[t.dataset.set]=t.checked;if(t.dataset.set==='zen'&&!t.checked)syncHearts();if(t.dataset.set==='zoom')applyZoom();save();render();const n=document.getElementById(t.id);if(n)try{n.focus({preventScroll:true});}catch(e){}}
   else if(t.id==='geoReg'){V.geoReg=t.value;V.geoDep=null;render();}
   else if(t.id==='geoDep'){V.geoDep=t.value;render();}
   else if(t.id==='geoCity'){const G=TL.GEO||[];const reg=G.find(r=>r[0]===V.geoReg)||G.find(r=>r[0]===(S.set.place&&S.set.place.reg))||G[0];
@@ -6685,7 +6698,7 @@ document.addEventListener('keydown',e=>{
 function boot(){
   load();rollDay();syncHearts();
   const st=checkStreak();
-  TTS.init();AUDIO.load();applyTheme();Cloud.init();
+  TTS.init();AUDIO.load();applyTheme();applyZoom();Cloud.init();
   const h=(location.hash||'').replace('#','');if(TABS.some(t=>t.id===h))V.tab=h;
   V.enter=true;render();
   loadWeather().then(ch=>{if(ch&&!P.on)render();});

@@ -368,6 +368,7 @@ function renderProfile(){
     ${sw('set-listen',S.set.listen,'Exercices d’écoute')}
     ${sw('set-type',S.set.type,'Exercices au clavier','Désactive-les si tu préfères les tuiles')}
     ${sw('set-anim',S.set.anim!==false,'Animations','Transitions et effets entre les exercices')}
+    ${sw('set-zoom',!!S.set.zoom,'Zoom à deux doigts','Désactivé : l’affichage reste toujours à la taille de l’écran')}
     ${sw('set-zen',freeHearts(),'Vies illimitées',ultra()?'Inclus dans le mode ultra':'Les erreurs ne coûtent plus de vie',ultra())}
     ${sw('set-unlock',S.set.unlock,'Tout débloquer','Accès libre à toutes les leçons et histoires')}
     <div class="set-row"><label class="lbl" for="voiceSel">Voix<small>${TTS.quality==='native'?'Voix tagalog trouvée.':TTS.quality==='approx'?'Pas de voix tagalog : voix proche utilisée.':'Aucune voix détectée.'}</small></label>

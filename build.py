@@ -52,7 +52,7 @@ if('serviceWorker' in navigator && location.protocol==='https:'){
 }
 </script>"""
 web = ('<!doctype html>\n<html lang="fr">\n<head>\n<meta charset="utf-8">\n'
-       '<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">\n'
+       '<meta name="viewport" id="vp" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">\n'
        '<meta name="description" content="Apprends le tagalog depuis le français, du niveau débutant au niveau expert : leçons courtes, exercices, histoires, conjugaison et baybayin.">\n'
        '<link rel="manifest" href="manifest.webmanifest">\n'
        '<link rel="icon" href="icons/icon.svg" type="image/svg+xml">\n'
