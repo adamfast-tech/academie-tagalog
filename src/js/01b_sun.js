@@ -1,22 +1,105 @@
 /* =========================================================
-   01b — Mascotte : Araw, le petit soleil, habillé selon la météo de Nice
+   01b — Mascotte : Araw, le petit soleil, habillé selon la météo de la ville de l'utilisateur
+   Lieu : position automatique (rafraîchie selon la fréquence choisie) ou ville choisie ; Nice par défaut.
    ========================================================= */
 const WX_STATES={
-  sun:     {fr:'Ensoleillé',  tl:'Maaraw sa Nice ngayon!',                        tr:'Il fait beau à Nice aujourd’hui !'},
-  hot:     {fr:'Très chaud',  tl:'Ang init sa Nice!',                              tr:'Qu’il fait chaud à Nice !'},
-  cloud:   {fr:'Éclaircies',  tl:'Medyo maulap sa Nice.',                          tr:'C’est un peu nuageux à Nice.'},
-  overcast:{fr:'Couvert',     tl:'Makulimlim sa Nice ngayon.',                     tr:'Le ciel est couvert à Nice.'},
-  fog:     {fr:'Brouillard',  tl:'Mahamog sa Nice ngayon.',                        tr:'Il y a du brouillard à Nice.'},
-  rain:    {fr:'Pluie',       tl:'Umuulan sa Nice! Magdala ka ng payong.',         tr:'Il pleut à Nice ! Prends un parapluie.'},
-  storm:   {fr:'Orage',       tl:'Kumikidlat at kumukulog sa Nice!',               tr:'Il y a des éclairs et du tonnerre à Nice !'},
-  snow:    {fr:'Neige',       tl:'Umuulan ng niyebe sa Nice!',                     tr:'Il neige à Nice !'},
-  cold:    {fr:'Froid',       tl:'Malamig sa Nice ngayon. Mag-jacket ka!',         tr:'Il fait froid à Nice. Mets une veste !'},
-  wind:    {fr:'Venteux',     tl:'Mahangin sa Nice ngayon!',                       tr:'Il y a du vent à Nice !'},
-  night:   {fr:'Nuit',        tl:'Gabi na sa Nice. Tulog na ang araw!',            tr:'C’est la nuit à Nice. Le soleil dort !'}
+  sun:     {fr:'Ensoleillé',  tl:'Maaraw {sa} ngayon!',                        tr:'Il fait beau {a} aujourd’hui !'},
+  hot:     {fr:'Très chaud',  tl:'Ang init {sa}!',                              tr:'Qu’il fait chaud {a} !'},
+  cloud:   {fr:'Éclaircies',  tl:'Medyo maulap {sa}.',                          tr:'C’est un peu nuageux {a}.'},
+  overcast:{fr:'Couvert',     tl:'Makulimlim {sa} ngayon.',                     tr:'Le ciel est couvert {a}.'},
+  fog:     {fr:'Brouillard',  tl:'Mahamog {sa} ngayon.',                        tr:'Il y a du brouillard {a}.'},
+  rain:    {fr:'Pluie',       tl:'Umuulan {sa}! Magdala ka ng payong.',         tr:'Il pleut {a} ! Prends un parapluie.'},
+  storm:   {fr:'Orage',       tl:'Kumikidlat at kumukulog {sa}!',               tr:'Il y a des éclairs et du tonnerre {a} !'},
+  snow:    {fr:'Neige',       tl:'Umuulan ng niyebe {sa}!',                     tr:'Il neige {a} !'},
+  cold:    {fr:'Froid',       tl:'Malamig {sa} ngayon. Mag-jacket ka!',         tr:'Il fait froid {a}. Mets une veste !'},
+  wind:    {fr:'Venteux',     tl:'Mahangin {sa} ngayon!',                       tr:'Il y a du vent {a} !'},
+  night:   {fr:'Nuit',        tl:'Gabi na {sa}. Tulog na ang araw!',            tr:'C’est la nuit {a}. Le soleil dort !'}
 };
-const WX={st:null,t:null,code:null,wind:null,day:true,src:'',ts:0};
+const WX={st:null,t:null,code:null,wind:null,day:true,src:'',ts:0,key:''};
 const WX_KEY='akademya-wx';
-function niceHour(){try{return +new Date().toLocaleString('en-GB',{timeZone:'Europe/Paris',hour:'2-digit',hour12:false}).slice(0,2);}catch(e){return new Date().getHours();}}
+
+/* ---------- Lieu ---------- */
+const PLACE_DEF={n:'Nice',lat:43.703,lon:7.266,sub:'Alpes-Maritimes'};
+const LOC_FREQ={day:864e5,week:6048e5,month:2592e6,never:Infinity};
+const LOC_FREQ_FR={day:'Une fois par jour',week:'Une fois par semaine',month:'Une fois par mois',never:'Jamais (à la demande)'};
+const LOC={busy:false,err:'',perm:''};
+function place(){
+  const s=S.set;
+  if(s.loc==='fixed'&&s.place&&isFinite(s.place.lat))return Object.assign({src:'fixed'},s.place);
+  if(s.loc!=='fixed'&&s.gps&&isFinite(s.gps.lat))return Object.assign({src:'gps'},s.gps);
+  return Object.assign({src:'default'},PLACE_DEF);
+}
+const placeName=()=>place().n||'';
+const saPlace=()=>{const n=placeName();return n?'sa '+n:'dito';};
+function aPlace(){const n=placeName();if(!n)return 'ici';if(/^Le /.test(n))return 'au '+n.slice(3);if(/^Les /.test(n))return 'aux '+n.slice(4);return 'à '+n;}
+const wxTl=W=>W.tl.replace('{sa}',saPlace());
+const wxTr=W=>W.tr.replace('{a}',aPlace());
+function geoKm(a1,o1,a2,o2){const r=Math.PI/180,x=Math.sin((a2-a1)*r/2),y=Math.sin((o2-o1)*r/2);return 12742*Math.asin(Math.sqrt(x*x+Math.cos(a1*r)*Math.cos(a2*r)*y*y));}
+function nearestCity(lat,lon){
+  let best=null;
+  (TL.GEO||[]).forEach(([rc,rn,deps])=>deps.forEach(([dc,dn,cities])=>cities.forEach(([n,a,o])=>{const k=geoKm(lat,lon,a,o);if(!best||k<best.km)best={n,lat:a,lon:o,km:k,sub:dn,reg:rc,dep:dc};})));
+  return best;
+}
+async function locPerm(){
+  if(typeof navigator==='undefined'||!navigator.geolocation){LOC.perm='unsupported';return LOC.perm;}
+  try{if(navigator.permissions&&navigator.permissions.query){const r=await navigator.permissions.query({name:'geolocation'});LOC.perm=r.state;return r.state;}}catch(e){}
+  return LOC.perm||'prompt';
+}
+/* Faut-il redemander la position ? selon la fréquence choisie (jamais = seulement à la demande) */
+function locDue(){
+  const s=S.set;if(s.loc==='fixed')return false;
+  const f=LOC_FREQ[s.locFreq]||LOC_FREQ.day;
+  if(f===Infinity)return false;
+  return !s.gps||!s.gps.ts||Date.now()-s.gps.ts>=f;
+}
+function getPos(maxAge){return new Promise((res,rej)=>{try{navigator.geolocation.getCurrentPosition(p=>res(p.coords),rej,{enableHighAccuracy:false,timeout:15000,maximumAge:maxAge});}catch(e){rej(e);}});}
+async function reverseName(lat,lon){
+  try{
+    const ctrl=new AbortController();const to=setTimeout(()=>ctrl.abort(),6000);
+    const r=await fetch(`https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${lat}&longitude=${lon}&localityLanguage=fr`,{signal:ctrl.signal});
+    clearTimeout(to);
+    if(r.ok){const j=await r.json();const n=j.city||j.locality;if(n)return {n:String(n).slice(0,60),sub:String(j.principalSubdivision||j.countryName||'').slice(0,60)};}
+  }catch(e){}
+  const c=nearestCity(lat,lon);
+  if(c&&c.km<=40)return {n:c.n,sub:c.km<=8?c.sub:'à '+Math.round(c.km)+' km'};
+  return {n:'',sub:''};
+}
+/* Localisation basse consommation : pas de GPS précis, position récente du système acceptée, arrondie à ~1 km */
+async function locate(manual){
+  if(LOC.busy)return false;
+  LOC.busy=true;LOC.err='';
+  try{
+    if(typeof navigator==='undefined'||!navigator.geolocation)throw {code:'unsupported'};
+    const f=LOC_FREQ[S.set.locFreq]||LOC_FREQ.day;
+    const c=await getPos(manual?6e4:Math.min(f===Infinity?864e5:f,6*36e5));
+    const lat=+c.latitude.toFixed(2),lon=+c.longitude.toFixed(2);
+    const nm=await reverseName(lat,lon);
+    S.set.gps={lat,lon,n:nm.n,sub:nm.sub,ts:Date.now()};LOC.perm='granted';save();
+    await loadWeather(true);
+    return true;
+  }catch(e){
+    const code=e&&e.code;
+    LOC.err=code===1?'denied':code===3?'timeout':code==='unsupported'?'unsupported':'unavailable';
+    if(code===1)LOC.perm='denied';
+    return false;
+  }finally{LOC.busy=false;}
+}
+/* Au démarrage et au retour sur l'appli : seulement si l'utilisateur a déjà autorisé, et si c'est l'heure */
+async function locAuto(){
+  if(!locDue())return false;
+  const st=await locPerm();if(st!=='granted')return false;
+  return locate(false);
+}
+async function geoSearch(q){
+  const ctrl=new AbortController();const to=setTimeout(()=>ctrl.abort(),7000);
+  const r=await fetch('https://geocoding-api.open-meteo.com/v1/search?count=8&language=fr&format=json&name='+encodeURIComponent(q),{signal:ctrl.signal});
+  clearTimeout(to);if(!r.ok)throw new Error('http '+r.status);
+  const j=await r.json();
+  return (j.results||[]).map(x=>({n:x.name,lat:+(+x.latitude).toFixed(3),lon:+(+x.longitude).toFixed(3),sub:[x.admin2||x.admin1,x.country_code==='FR'?'':x.country].filter(Boolean).join(', ')}));
+}
+
+/* ---------- Météo ---------- */
+function localHour(){return new Date().getHours();}
 function wxClassify(code,t,wind,day){
   if(code>=95)return 'storm';
   if((code>=71&&code<=77)||code===85||code===86)return 'snow';
@@ -30,24 +113,25 @@ function wxClassify(code,t,wind,day){
   if(t!=null&&t>=29)return 'hot';
   return 'sun';
 }
-function wxFallback(){const h=niceHour();WX.st=(h>=7&&h<20)?'sun':'night';WX.src='fallback';}
+function wxFallback(){const h=localHour();WX.st=(h>=7&&h<20)?'sun':'night';WX.src='fallback';}
 async function loadWeather(force){
   const prev=WX.st;
   if(S.set.wx&&S.set.wx!=='auto'){WX.st=S.set.wx;WX.src='manual';return prev!==WX.st;}
-  if(!force){try{const c=JSON.parse(localStorage.getItem(WX_KEY)||'null');if(c&&Date.now()-c.ts<15*60e3){Object.assign(WX,c);return prev!==WX.st;}}catch(e){}}
+  const p=place(),key=(+p.lat).toFixed(2)+','+(+p.lon).toFixed(2);
+  if(!force){try{const c=JSON.parse(localStorage.getItem(WX_KEY)||'null');if(c&&c.key===key&&Date.now()-c.ts<15*60e3){Object.assign(WX,c);return prev!==WX.st;}}catch(e){}}
   try{
     const ctrl=new AbortController();const to=setTimeout(()=>ctrl.abort(),7000);
-    const r=await fetch('https://api.open-meteo.com/v1/forecast?latitude=43.7031&longitude=7.2661&current=temperature_2m,weather_code,is_day,wind_speed_10m&timezone=Europe%2FParis',{signal:ctrl.signal});
+    const r=await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${(+p.lat).toFixed(2)}&longitude=${(+p.lon).toFixed(2)}&current=temperature_2m,weather_code,is_day,wind_speed_10m&timezone=auto`,{signal:ctrl.signal});
     clearTimeout(to);
     if(!r.ok)throw new Error('http '+r.status);
     const c=(await r.json()).current;
     WX.t=Math.round(c.temperature_2m);WX.code=c.weather_code;WX.wind=Math.round(c.wind_speed_10m);WX.day=!!c.is_day;
-    WX.st=wxClassify(WX.code,WX.t,WX.wind,WX.day);WX.src='live';WX.ts=Date.now();
+    WX.st=wxClassify(WX.code,WX.t,WX.wind,WX.day);WX.src='live';WX.ts=Date.now();WX.key=key;
     try{localStorage.setItem(WX_KEY,JSON.stringify(WX));}catch(e){}
-  }catch(e){if(WX.src!=='live'||force)wxFallback();}
+  }catch(e){if(WX.src!=='live'||WX.key!==key||force)wxFallback();}
   return prev!==WX.st;
 }
-const wxNow=()=>WX.st||((niceHour()>=7&&niceHour()<20)?'sun':'night');
+const wxNow=()=>WX.st||((localHour()>=7&&localHour()<20)?'sun':'night');
 
 /* ---------- Dessin ---------- */
 function sunCloud(x,y,s,fill,stroke,cls){
@@ -112,8 +196,10 @@ function mascot(mood,cls,wx){
 }
 /* Petit bloc météo : lieu, température, phrase tagalog à écouter */
 function wxBlock(){
-  const st=wxNow(),W=WX_STATES[st];
-  const where=WX.src==='live'?`Nice · ${WX.t} °C · ${W.fr}`:WX.src==='manual'?`Météo choisie · ${W.fr}`:`Nice · météo en direct indisponible`;
-  return `<div class="wx"><span class="wx-pill">${ic(st==='night'?'clock':st==='rain'||st==='storm'?'cloud':'sun')}${esc(where)}</span>
-    <p><span class="tl tl-say" data-say="${attr(W.tl)}">${esc(W.tl)}</span><br><span class="small muted">${esc(W.tr)}</span></p></div>`;
+  const st=wxNow(),W=WX_STATES[st],p=place(),nm=p.n||'Ma position';
+  const where=WX.src==='live'?`${nm} · ${WX.t} °C · ${W.fr}`:WX.src==='manual'?`Météo choisie · ${W.fr}`:`${nm} · météo en direct indisponible`;
+  const ask=S.set.loc!=='fixed'&&p.src==='default'&&LOC.perm!=='denied'&&LOC.perm!=='unsupported';
+  const tl=wxTl(W);
+  return `<div class="wx"><div class="wx-top"><span class="wx-pill">${ic(st==='night'?'clock':st==='rain'||st==='storm'?'cloud':'sun')}${esc(where)}</span>${ask?`<button class="wx-loc" data-act="loc-now" ${LOC.busy?'disabled':''}>${ic('pin')}${LOC.busy?'Localisation…':'Ma ville'}</button>`:''}</div>
+    <p><span class="tl tl-say" data-say="${attr(tl)}">${esc(tl)}</span><br><span class="small muted">${esc(wxTr(W))}</span></p></div>`;
 }

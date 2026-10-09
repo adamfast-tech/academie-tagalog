@@ -103,7 +103,7 @@ function defState(){return {v:1,name:'',started:Date.now(),xp:0,gems:100,hearts:
   streak:0,best:0,last:null,freezes:0,goal:20,days:{},done:{},tested:{},words:{},badges:{},stories:{},mistakes:[],
   stats:{ans:0,ok:0,lessons:0,perfect:0,conj:0,nums:0,listen:0,typed:0,early:0,late:0},
   day:{d:today(),xp:0,lessons:0,perfect:0,ok:0,combo:0,stories:0,listen:0,typed:0,conj:0,claimed:{}},
-  set:{sfx:true,tts:true,rate:.9,voice:'',listen:true,type:true,zen:false,ultra:false,unlock:false,theme:'auto',auto:true,wx:'auto',anim:true,natural:true},
+  set:{sfx:true,tts:true,rate:.9,voice:'',listen:true,type:true,zen:false,ultra:false,unlock:false,theme:'auto',auto:true,wx:'auto',anim:true,natural:true,loc:'auto',locFreq:'day',place:null,gps:null},
   seenWelcome:false,updated:0,owner:null};}
 let S=defState();
 function load(){

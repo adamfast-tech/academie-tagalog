@@ -37,7 +37,7 @@ function questPanel(){
 }
 function renderSide(){
   const lv=levelOf(S.xp),lt=levelTitle(lv.n);
-  $('#side').innerHTML=`<div class="side-stats">${statChips()}</div><div class="panel"><div style="display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center">${mascot('','m')}<div style="min-width:0"><h3>Panahon sa Nice</h3>${wxBlock()}</div></div></div>${goalPanel()}${questPanel()}
+  $('#side').innerHTML=`<div class="side-stats">${statChips()}</div><div class="panel"><div style="display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:center">${mascot('','m')}<div style="min-width:0"><h3>Panahon ${esc(saPlace())}</h3>${wxBlock()}</div></div></div>${goalPanel()}${questPanel()}
    <div class="panel"><div class="section-h"><h3>Niveau ${lv.n}</h3><span class="small muted">${lt[0]} · ${lt[1]}</span></div>
     <div class="meter"><i style="width:${lv.p*100}%"></i></div><div class="small muted tnum">${fmtNum(S.xp)} / ${fmtNum(lv.hi)} XP</div></div>
    ${sidePanelAccount()}`;
@@ -85,7 +85,7 @@ function renderLearn(){
   const cur=currentLesson();
   let html=topbar('Apprendre');
   if(!S.seenWelcome&&!Object.keys(S.done).length){
-    html+=`<div class="hero">${mascot('','m')}<div style="display:grid;gap:8px"><h1>Maligayang pagdating!</h1><p class="muted">Bienvenue dans ton cours de tagalog. Je suis Araw, « soleil » en tagalog. Je m’habille selon la météo de Nice. On commence par le début, ou tu passes un test pour sauter des sections ?</p>${wxBlock()}
+    html+=`<div class="hero">${mascot('','m')}<div style="display:grid;gap:8px"><h1>Maligayang pagdating!</h1><p class="muted">Bienvenue dans ton cours de tagalog. Je suis Araw, « soleil » en tagalog. Je m’habille selon la météo de ta ville. On commence par le début, ou tu passes un test pour sauter des sections ?</p>${wxBlock()}
      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary sm" data-act="welcome-start">Je débute</button><button class="btn sm" data-act="placement">J’ai déjà des bases</button>${Cloud.available()&&!Cloud.user?'<button class="btn sm ghost" data-act="acct-go" data-id="login">J’ai un compte</button>':''}</div></div></div>`;
   }
   else if(cur&&Object.keys(S.done).length){
@@ -280,6 +280,54 @@ function ultraCard(){
     <span class="lbl">${on?'Mode ultra activé':'Activer le mode ultra ?'}<small>${on?'Vies, perlas et gels de série illimités. Aucune limite d’erreurs, même aux épreuves.':'Vies, perlas et gels de série illimités : plus rien ne bloque ta progression.'}</small></span>
     <span class="switch"><input type="checkbox" id="set-ultra" data-set="ultra" ${on?'checked':''} aria-label="Mode ultra"><span></span></span></label>`;
 }
+/* ---------- Position et météo (Profil) ---------- */
+function agoFr(ts){const m=Math.round((Date.now()-ts)/6e4);if(m<2)return 'à l’instant';if(m<60)return `il y a ${m} min`;const h=Math.round(m/60);if(h<24)return `il y a ${h} h`;const d=Math.round(h/24);return `il y a ${d} jour${d>1?'s':''}`;}
+function placePanel(){
+  const s=S.set,auto=s.loc!=='fixed',p=place();
+  const opt=(v,l,on)=>`<option value="${attr(v)}" ${on?'selected':''}>${esc(l)}</option>`;
+  let status;
+  if(auto){
+    if(LOC.busy)status='Recherche de ta position…';
+    else if(s.gps&&s.gps.ts)status=`${s.gps.n||'Position trouvée'}${s.gps.sub?' ('+s.gps.sub+')':''} · mise à jour ${agoFr(s.gps.ts)}`;
+    else if(LOC.perm==='denied'||LOC.err==='denied')status='Localisation refusée : autorise-la dans les réglages du navigateur, ou choisis une ville.';
+    else if(LOC.perm==='unsupported'||LOC.err==='unsupported')status='Localisation indisponible ici : choisis une ville.';
+    else if(LOC.err)status='Position introuvable pour le moment. Nice est affichée en attendant.';
+    else status='Pas encore localisé : Nice est affichée en attendant.';
+  }else status=p.src==='fixed'?`${p.n}${p.sub?' ('+p.sub+')':''}`:'Choisis une ville ci-dessous.';
+  let body='';
+  if(auto){
+    body=`<div class="set-row"><label class="lbl" for="locFreq">Actualiser la position<small>Moins souvent, c’est moins de batterie.</small></label>
+      <select class="sel" id="locFreq">${Object.keys(LOC_FREQ).map(k=>opt(k,LOC_FREQ_FR[k],(s.locFreq||'day')===k)).join('')}</select></div>
+      <div class="row-btns"><button class="btn sm" data-act="loc-now" ${LOC.busy?'disabled':''}>${ic('pin')}${LOC.busy?'Localisation…':'Mettre à jour maintenant'}</button></div>`;
+  }else{
+    const G=TL.GEO||[];
+    const reg=G.find(r=>r[0]===V.geoReg)||G.find(r=>r[0]===(s.place&&s.place.reg))||G[0];
+    const dep=reg[2].find(d=>d[0]===V.geoDep)||reg[2].find(d=>d[0]===(s.place&&s.place.dep))||reg[2][0];
+    const here=s.place&&s.place.dep===dep[0];
+    body=`<div class="geo-grid">
+      <label class="lbl" for="geoReg">Région</label><select class="sel" id="geoReg">${G.map(r=>opt(r[0],r[1],r===reg)).join('')}</select>
+      <label class="lbl" for="geoDep">Département</label><select class="sel" id="geoDep">${reg[2].map(d=>opt(d[0],d[0]==='PH'?d[1]:d[0]+' · '+d[1],d===dep)).join('')}</select>
+      <label class="lbl" for="geoCity">Ville</label><select class="sel" id="geoCity">${here?'':opt('','Choisir une ville…',true)}${dep[2].map((c,i)=>opt(i,c[0],here&&s.place.n===c[0])).join('')}</select></div>
+      <form class="geo-search" data-act="geo-search"><input class="type-line" id="geoQ" type="search" placeholder="Autre ville (France ou monde)" autocomplete="off" value="${attr(V.geoQ||'')}"><button class="btn sm" type="submit">Chercher</button></form>
+      <div id="geoRes">${geoResHTML()}</div>`;
+  }
+  return `<div class="section-h"><h2>Météo de la mascotte</h2></div>
+   <div class="panel set">
+    <div class="set-row"><span class="lbl">Ville<small>${esc(status)}</small></span>
+      <div class="seg">${[['auto','Automatique'],['fixed','Ville choisie']].map(([v,l])=>`<button type="button" data-act="loc-mode" data-v="${v}" aria-pressed="${(auto?'auto':'fixed')===v}">${l}</button>`).join('')}</div></div>
+    ${body}
+    <div class="set-row"><label class="lbl" for="wxSel">Météo affichée<small>${WX.src==='live'?`En direct : ${esc(p.n||'ta position')}, ${WX.t} °C`:WX.src==='manual'?'Choisie à la main':'Météo en direct indisponible ici'}</small></label>
+      <select class="sel" id="wxSel">${opt('auto','En direct',!s.wx||s.wx==='auto')}${Object.entries(WX_STATES).map(([k,v])=>opt(k,v.fr,s.wx===k)).join('')}</select></div>
+    <p class="small muted">${auto?'Position approximative (environ 1 km), gardée sur cet appareil et utilisée seulement pour la météo et le nom de la ville (BigDataCloud). ':''}La météo se met à jour toutes les 15 minutes quand l’appli est ouverte. Données météo : <a href="https://open-meteo.com/" target="_blank" rel="noopener">Open-Meteo.com</a>.</p>
+   </div>`;
+}
+function geoResHTML(){
+  if(V.geoBusy)return '<p class="small muted">Recherche…</p>';
+  if(V.geoErr)return `<p class="small muted">${esc(V.geoErr)}</p>`;
+  if(!V.geoRes)return '';
+  if(!V.geoRes.length)return '<p class="small muted">Aucune ville trouvée.</p>';
+  return `<div class="geo-res">${V.geoRes.map((r,i)=>`<button type="button" class="geo-hit" data-act="geo-pick" data-i="${i}">${ic('pin')}<span><b>${esc(r.n)}</b>${r.sub?`<span class="small muted">${esc(r.sub)}</span>`:''}</span></button>`).join('')}</div>`;
+}
 function renderProfile(){
   const lv=levelOf(S.xp),lt=levelTitle(lv.n);
   const nDone=Object.keys(S.done).length;
@@ -327,10 +375,9 @@ function renderProfile(){
     <div class="set-row"><label class="lbl" for="voiceSel">Voix<small>${TTS.quality==='native'?'Voix tagalog trouvée.':TTS.quality==='approx'?'Pas de voix tagalog : voix proche utilisée.':'Aucune voix détectée.'}</small></label>
       <select class="sel" id="voiceSel" ${voices.length?'':'disabled'}><option value="">Automatique</option>${voices.slice(0,40).map(v=>`<option value="${attr(v.voiceURI)}" ${S.set.voice===v.voiceURI?'selected':''}>${esc(v.name)} (${esc(v.lang)})</option>`).join('')}</select></div>
     <div class="set-row"><label class="lbl" for="rateIn">Vitesse de la voix<small class="tnum">${Math.round(S.set.rate*100)} %</small></label><input id="rateIn" type="range" min="0.5" max="1.2" step="0.05" value="${S.set.rate}" style="flex:1;max-width:220px"><button class="btn sm" data-say="Magandang umaga po! Kumusta po kayo?">${ic('speaker')}Tester</button></div>
-    <div class="set-row"><label class="lbl" for="wxSel">Météo de la mascotte<small>${WX.src==='live'?'En direct : Nice, '+WX.t+' °C':WX.src==='manual'?'Choisie à la main':'Météo en direct indisponible ici'}</small></label>
-      <select class="sel" id="wxSel"><option value="auto" ${!S.set.wx||S.set.wx==='auto'?'selected':''}>Nice en direct</option>${Object.entries(WX_STATES).map(([k,v])=>`<option value="${k}" ${S.set.wx===k?'selected':''}>${esc(v.fr)}</option>`).join('')}</select></div>
     <div class="set-row"><span class="lbl">Thème</span><div class="seg">${[['auto','Auto'],['light','Clair'],['dark','Sombre']].map(([v,l])=>`<button type="button" data-act="theme" data-v="${v}" aria-pressed="${S.set.theme===v}">${l}</button>`).join('')}</div></div>
    </div>
+   ${placePanel()}
    <div class="section-h"><h2>Mes données</h2></div>
    <div class="panel set">
     <p class="small muted">${Cloud.user?'Ta progression est enregistrée sur ton compte et dans ce navigateur.':'Ta progression est enregistrée dans ce navigateur.'} Copie-la pour la sauvegarder ou la transférer sur un autre appareil.</p>

@@ -48,7 +48,7 @@ const out = vm.runInContext(`(() => {
   // 5. guides, prononciation, météo, phrases de test
   UNITS.forEach(u => guideFrags(u.guide));
   guideFrags(PRON);
-  Object.values(WX_STATES).forEach(w => add(w.tl, 'weather'));
+  Object.values(WX_STATES).forEach(w => add(w.tl.replace('{sa}', 'sa Nice'), 'weather'));
   add('Magandang umaga po! Kumusta po kayo?', 'test'); add('Kumusta! Ako si Araw.', 'test');
   // 6. mots isolés des phrases et des histoires (tuiles, bulles de traduction)
   ALLS.forEach(s => s.tl.forEach(t => tokenize(t).forEach(k => add(k, 'token'))));

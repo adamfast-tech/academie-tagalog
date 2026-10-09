@@ -61,6 +61,7 @@ function compareAnswer(input,answers){
 
 /* ---------- Icônes (SVG 24×24) ---------- */
 const ICONS={
+ pin:'<path d="M12 2.4a7.1 7.1 0 0 0-7.1 7.1c0 5.3 7.1 12.1 7.1 12.1s7.1-6.8 7.1-12.1A7.1 7.1 0 0 0 12 2.4z" fill="currentColor"/><circle cx="12" cy="9.5" r="2.7" fill="#fff"/>',
  learn:'<path d="M3 11.2 12 4l9 7.2V20a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z" fill="currentColor"/>',
  practice:'<g fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round"><path d="M6.5 6v12M3 9v6M17.5 6v12M21 9v6M6.5 12h11"/></g>',
  stories:'<path d="M2 5.5h6.5A3.5 3.5 0 0 1 12 9v12a2.5 2.5 0 0 0-2.5-2.5H2zM22 5.5h-6.5A3.5 3.5 0 0 0 12 9v12a2.5 2.5 0 0 1 2.5-2.5H22z" fill="currentColor"/>',

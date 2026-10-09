@@ -30,7 +30,8 @@ Site statique (HTML/CSS/JS), installable sur iPhone, Android, iPad et ordinateur
 - Bulles de traduction : toucher un mot tagalog affiche son sens.
 - Voix naturelles Gemini (fichiers MP3 pré-générés, une voix par personnage dans les histoires) ; à défaut, voix du navigateur : tagalog (fil-PH) si l'appareil en a une, sinon voix proche (indonésien, malais, espagnol). Lecture lente.
 - Lexique : guides de grammaire, dictionnaire, tableaux de conjugaison, nombres en lettres (1 à 999 999), baybayin, prononciation.
-- Mascotte Araw (« soleil ») animée, habillée selon la météo en direct à Nice (Open-Meteo, sans clé) : lunettes, parapluie, bonnet, écharpe, bonnet de nuit… avec une phrase tagalog sur le temps qu'il fait.
+- Mascotte Araw (« soleil ») animée, habillée selon la météo en direct de ta ville (Open-Meteo, sans clé) : lunettes, parapluie, bonnet, écharpe, bonnet de nuit… avec une phrase tagalog sur le temps qu'il fait.
+- Ville de la météo : position automatique (actualisée une fois par jour, par semaine, par mois ou seulement à la demande, en mode basse consommation, arrondie à ~1 km et gardée sur l’appareil), ou ville choisie par région → département → ville (≈ 600 villes de France et des Philippines), ou recherche de n’importe quelle ville du monde. Nice par défaut.
 - Thème clair / sombre, réglages (objectif, sons, voix, mode ultra, vies illimitées, tout débloquer), export / import de la progression.
 - Comptes en ligne (e-mail ou nom d’utilisateur + mot de passe) : progression synchronisée entre appareils, historique des dernières leçons.
 
@@ -102,6 +103,13 @@ Le site utilise le même projet Supabase que l’Académie CMD & PowerShell : **
 - Supprimer son compte efface aussi la progression de l’Académie (compte commun).
 
 La clé Supabase présente dans `build.py` est la clé *publiable*, conçue pour être publique.
+
+## Crédits
+
+- Météo : [Open-Meteo.com](https://open-meteo.com/) (CC BY 4.0), y compris la recherche de villes.
+- Nom de la ville à partir de la position : [BigDataCloud](https://www.bigdatacloud.com/) (API gratuite côté navigateur).
+- Liste des villes : découpage administratif et populations INSEE via Etalab (Licence Ouverte 2.0), coordonnées [GeoNames](https://www.geonames.org/) (CC BY 4.0).
+- supabase-js (MIT).
 
 ## Publication (GitHub Pages)
 

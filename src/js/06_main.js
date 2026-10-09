@@ -108,6 +108,15 @@ document.addEventListener('click',e=>{
     case 'shop':openShop();break;
     case 'info-streak':openStreakInfo();break;
     case 'info-hearts':openHeartsInfo();break;
+    case 'loc-mode':
+      if(d.v==='fixed'){S.set.loc='fixed';if(!S.set.place){const g=S.set.gps,c=g?nearestCity(g.lat,g.lon):null;V.geoReg=c?c.reg:'93';V.geoDep=c?c.dep:'06';}}
+      else{S.set.loc='auto';}
+      save();render();
+      if(S.set.loc==='auto'&&(!S.set.gps||locDue()))doLocate();else loadWeather(true).then(()=>render());
+      break;
+    case 'loc-now':doLocate();break;
+    case 'geo-pick':{const r=(V.geoRes||[])[+d.i];if(!r)break;S.set.place={n:r.n,lat:r.lat,lon:r.lon,sub:r.sub};S.set.loc='fixed';V.geoRes=null;V.geoQ='';save();
+      toast('Météo de '+r.n+' activée.');loadWeather(true).then(()=>render());render();break;}
     case 'nudge-x':V.noNudge=true;{const n=a.closest('.nudge');if(n)anim(n,[{opacity:1,transform:'none'},{opacity:0,transform:'translateY(-8px)'}],{duration:200}).then(()=>render());}break;
     case 'ultra-on':closeModal();setUltra(true);break;
     case 'buy-freeze':if(!ultra()&&S.gems>=100&&S.freezes<2){S.gems-=100;S.freezes++;save();toast('Gel de série équipé.');closeModal();render();}break;
@@ -125,7 +134,19 @@ document.addEventListener('click',e=>{
     case 'quit-confirm':closeModal();closePlayer();break;
   }
 });
+/* Localisation demandée par l'utilisateur (geste : la demande d'autorisation du navigateur peut s'afficher) */
+async function doLocate(){
+  const p=locate(true);if(!P.on)render();
+  const ok=await p;if(!P.on)render();
+  if(ok)toast('Météo de '+(S.set.gps.n||'ta position')+' activée.');
+  else toast(LOC.err==='denied'?'Localisation refusée : autorise-la dans les réglages du navigateur, ou choisis une ville.':LOC.err==='unsupported'?'Localisation indisponible ici : choisis une ville dans le Profil.':'Position introuvable pour le moment. Réessaie plus tard.');
+}
 document.addEventListener('submit',e=>{
+  const gs=e.target.closest('[data-act="geo-search"]');
+  if(gs){e.preventDefault();const q=($('#geoQ').value||'').trim();if(q.length<2)return;
+    V.geoQ=q;V.geoBusy=true;V.geoErr='';V.geoRes=null;const box=$('#geoRes');if(box)box.innerHTML=geoResHTML();
+    geoSearch(q).then(r=>{V.geoRes=r;},()=>{V.geoErr='Recherche indisponible pour le moment (connexion ?).';})
+      .then(()=>{V.geoBusy=false;const b=$('#geoRes');if(b)b.innerHTML=geoResHTML();});return;}
   const f=e.target.closest('[data-act="name-form"]');if(!f)return;e.preventDefault();
   S.name=($('#nameIn').value||'').trim().slice(0,30);V.editName=false;save();render();
 });
@@ -150,6 +171,12 @@ document.addEventListener('change',e=>{
   const t=e.target;
   if(t.dataset&&t.dataset.set==='ultra'){setUltra(t.checked);}
   else if(t.dataset&&t.dataset.set){S.set[t.dataset.set]=t.checked;if(t.dataset.set==='zen'&&!t.checked)syncHearts();save();render();const n=document.getElementById(t.id);if(n)try{n.focus({preventScroll:true});}catch(e){}}
+  else if(t.id==='geoReg'){V.geoReg=t.value;V.geoDep=null;render();}
+  else if(t.id==='geoDep'){V.geoDep=t.value;render();}
+  else if(t.id==='geoCity'){const G=TL.GEO||[];const reg=G.find(r=>r[0]===V.geoReg)||G.find(r=>r[0]===(S.set.place&&S.set.place.reg))||G[0];
+    const dep=reg[2].find(x=>x[0]===V.geoDep)||reg[2].find(x=>x[0]===(S.set.place&&S.set.place.dep))||reg[2][0];const c=dep[2][+t.value];
+    if(c){S.set.place={n:c[0],lat:c[1],lon:c[2],sub:dep[1],reg:reg[0],dep:dep[0]};S.set.loc='fixed';save();toast('Météo de '+c[0]+' activée.');loadWeather(true).then(()=>render());render();}}
+  else if(t.id==='locFreq'){S.set.locFreq=t.value;save();render();locAuto().then(ch=>{if(ch&&!P.on)render();});}
   else if(t.id==='wxSel'){S.set.wx=t.value;save();loadWeather(true).then(()=>render());}
   else if(t.id==='voiceSel'){S.set.voice=t.value;save();TTS.pickVoice();TTS.speak('Kumusta! Ako si Araw.');render();}
 });
@@ -177,7 +204,13 @@ function boot(){
   const h=(location.hash||'').replace('#','');if(TABS.some(t=>t.id===h))V.tab=h;
   V.enter=true;render();
   loadWeather().then(ch=>{if(ch&&!P.on)render();});
-  setInterval(()=>{if(S.set.wx&&S.set.wx!=='auto')return;loadWeather(true).then(ch=>{if(ch&&!P.on&&!$('#modal').innerHTML)render();});},15*60e3);
+  locPerm().then(()=>locAuto()).then(ch=>{if(!P.on&&(ch||LOC.perm==='denied'||LOC.perm==='unsupported'))render();});
+  /* Météo toutes les 15 min, seulement quand l'appli est affichée ; position selon la fréquence choisie */
+  const wxTick=()=>{if(document.hidden||(S.set.wx&&S.set.wx!=='auto'))return;loadWeather(true).then(ch=>{if(ch&&!P.on&&!$('#modal').innerHTML)render();});};
+  setInterval(wxTick,15*60e3);
+  document.addEventListener('visibilitychange',()=>{if(document.hidden)return;
+    locAuto().then(ch=>{if(ch&&!P.on&&!$('#modal').innerHTML)render();});
+    loadWeather().then(ch=>{if(ch&&!P.on&&!$('#modal').innerHTML)render();});});
   if(st==='ultra')toast('Mode ultra : ta série est restée intacte.');
   else if(st==='freeze')toast('Un gel de série a protégé ta série !');
   else if(st==='lost')toast('Ta série est repartie de zéro. Kaya mo ’yan !');
