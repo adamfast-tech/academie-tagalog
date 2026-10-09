@@ -541,6 +541,10 @@ svg.b *{animation:none!important}
 @keyframes vt-out-back{to{opacity:0;transform:translateX(34px)}}
 @keyframes vt-in-back{from{opacity:0;transform:translateX(-46px)}}
 
+/* ---------- Appui long : ni sélection de texte, ni menu Copier / Rechercher (sauf dans les champs de saisie) ---------- */
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+img,svg{-webkit-user-drag:none}
+input,textarea,[contenteditable="true"]{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
 /* ---------- Zoom bloqué (réglage « Zoom à deux doigts » désactivé) ---------- */
 html.nozoom,html.nozoom body{touch-action:pan-x pan-y}
 button,a,select,label,.node,.tile,.opt{touch-action:manipulation}
@@ -6496,6 +6500,10 @@ function applyZoom(){
   const z=!!S.set.zoom;document.documentElement.classList.toggle('nozoom',!z);
   const m=document.querySelector('meta[name="viewport"]');if(m)m.setAttribute('content',z?VP_ZOOM:VP_FIXED);
 }
+/* Appui long au doigt : pas de menu contextuel (le clic droit à la souris reste possible) */
+let lastPointer='mouse';
+document.addEventListener('pointerdown',e=>{lastPointer=e.pointerType||'mouse';},{passive:true,capture:true});
+document.addEventListener('contextmenu',e=>{if(lastPointer!=='mouse'&&!e.target.closest('input,textarea,[contenteditable="true"]'))e.preventDefault();});
 /* Safari iOS ignore user-scalable=no : on bloque aussi le geste de pincement */
 ['gesturestart','gesturechange'].forEach(t=>document.addEventListener(t,e=>{if(!S.set.zoom)e.preventDefault();},{passive:false}));
 document.addEventListener('touchmove',e=>{if(!S.set.zoom&&e.touches&&e.touches.length>1)e.preventDefault();},{passive:false});

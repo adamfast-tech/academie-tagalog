@@ -8,6 +8,10 @@ function applyZoom(){
   const z=!!S.set.zoom;document.documentElement.classList.toggle('nozoom',!z);
   const m=document.querySelector('meta[name="viewport"]');if(m)m.setAttribute('content',z?VP_ZOOM:VP_FIXED);
 }
+/* Appui long au doigt : pas de menu contextuel (le clic droit à la souris reste possible) */
+let lastPointer='mouse';
+document.addEventListener('pointerdown',e=>{lastPointer=e.pointerType||'mouse';},{passive:true,capture:true});
+document.addEventListener('contextmenu',e=>{if(lastPointer!=='mouse'&&!e.target.closest('input,textarea,[contenteditable="true"]'))e.preventDefault();});
 /* Safari iOS ignore user-scalable=no : on bloque aussi le geste de pincement */
 ['gesturestart','gesturechange'].forEach(t=>document.addEventListener(t,e=>{if(!S.set.zoom)e.preventDefault();},{passive:false}));
 document.addEventListener('touchmove',e=>{if(!S.set.zoom&&e.touches&&e.touches.length>1)e.preventDefault();},{passive:false});

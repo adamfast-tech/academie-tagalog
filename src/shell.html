@@ -527,6 +527,10 @@ svg.b *{animation:none!important}
 @keyframes vt-out-back{to{opacity:0;transform:translateX(34px)}}
 @keyframes vt-in-back{from{opacity:0;transform:translateX(-46px)}}
 
+/* ---------- Appui long : ni sélection de texte, ni menu Copier / Rechercher (sauf dans les champs de saisie) ---------- */
+body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+img,svg{-webkit-user-drag:none}
+input,textarea,[contenteditable="true"]{-webkit-user-select:text;user-select:text;-webkit-touch-callout:default}
 /* ---------- Zoom bloqué (réglage « Zoom à deux doigts » désactivé) ---------- */
 html.nozoom,html.nozoom body{touch-action:pan-x pan-y}
 button,a,select,label,.node,.tile,.opt{touch-action:manipulation}
