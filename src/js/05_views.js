@@ -51,7 +51,7 @@ function sidePanelAccount(){
   return row('Sauvegarde ta progression','Crée un compte pour la retrouver sur tous tes appareils.',`<div class="row-btns" style="margin-top:10px"><button class="btn primary sm" data-act="acct-go" data-id="signup">Créer un compte</button><button class="btn sm" data-act="acct-go" data-id="login">Connexion</button></div>`);
 }
 function renderChrome(){
-  $('#brand').innerHTML=`${mascot('','b','none')}<div>Akademya<small>Tagalog</small></div>`;
+  $('#brand').innerHTML=`${mascot('','b','none')}<div>Akademya<small>${bdayOn()?'Tagalog · 🎂':'Tagalog'}</small></div>`;
   $('#railNav').innerHTML=TABS.map(t=>`<button class="rail-btn" data-act="nav" data-to="${t.id}" ${V.tab===t.id?'aria-current="page"':''}>${ic(t.ic)}${t.l}</button>`).join('');
   $('#tabbar').innerHTML=TABS.map(t=>`<button class="tab" data-act="nav" data-to="${t.id}" ${V.tab===t.id?'aria-current="page"':''}>${ic(t.ic)}<span>${t.l}</span></button>`).join('');
   const q=TTS.quality;
@@ -85,12 +85,12 @@ function renderLearn(){
   const cur=currentLesson();
   let html=topbar('Apprendre');
   if(!S.seenWelcome&&!Object.keys(S.done).length){
-    html+=`<div class="hero">${mascot('','m')}<div style="display:grid;gap:8px"><h1>Maligayang pagdating!</h1><p class="muted">Bienvenue dans ton cours de tagalog. Je suis Araw, « soleil » en tagalog. Je m’habille selon la météo de ta ville. On commence par le début, ou tu passes un test pour sauter des sections ?</p>${wxBlock()}
+    html+=`<div class="hero">${mascot('','m')}<div style="display:grid;gap:8px"><h1>${bdayOn()?'Maligayang kaarawan, Savannah! 🎂':'Maligayang pagdating!'}</h1><p class="muted">Bienvenue dans ton cours de tagalog. Je suis Araw, « soleil » en tagalog. Je m’habille selon la météo de ta ville. On commence par le début, ou tu passes un test pour sauter des sections ?</p>${wxBlock()}
      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary sm" data-act="welcome-start">Je débute</button><button class="btn sm" data-act="placement">J’ai déjà des bases</button>${Cloud.available()&&!Cloud.user?'<button class="btn sm ghost" data-act="acct-go" data-id="login">J’ai un compte</button>':''}</div></div></div>`;
   }
   else if(cur&&Object.keys(S.done).length){
     const h=new Date().getHours();const hello=h<11?'Magandang umaga':h<14?'Magandang tanghali':h<18?'Magandang hapon':'Magandang gabi';
-    html+=`<div class="hero">${mascot('','m')}<div style="display:grid;gap:8px;min-width:0"><h1>${hello}${S.name?', '+esc(S.name):''}!</h1>
+    html+=`<div class="hero">${mascot('','m')}<div style="display:grid;gap:8px;min-width:0"><h1>${bdayOn()?'Maligayang kaarawan, Savannah! 🎂':hello+(S.name?', '+esc(S.name):'')+'!'}</h1>${bdayOn()?'<button class="link-btn bday-reread" data-act="bday-letter">💌 Relire ton message</button>':''}
      ${wxBlock()}<p class="muted">Prochaine étape : ${cur.u?`unité ${cur.u.n} · ${esc(cur.u.t)} — ${esc(cur.t)}`:esc(cur.t)+' de la section '+cur.sec}.</p>
      <div><button class="btn primary sm" data-act="start" data-id="${cur.id}">${ic('play')}Continuer</button></div></div></div>`;
     if(Cloud.available()&&Cloud.ready&&!Cloud.user&&!V.noNudge)html+=`<div class="nudge">${ic('cloud')}<span><b>Sauvegarde ta progression</b><span class="small muted">Un compte gratuit pour la retrouver sur tous tes appareils.</span></span><button class="btn primary sm" data-act="acct-go" data-id="signup">Créer un compte</button><button class="icon-btn" data-act="nudge-x" aria-label="Masquer">${ic('x')}</button></div>`;
@@ -359,6 +359,7 @@ function renderProfile(){
    </div>
    <div class="section-h"><h2>Réglages</h2></div>
    ${ultraCard()}
+   ${bdaySpot()}
    <div class="panel set">
     <div class="set-row"><span class="lbl">Objectif quotidien<small>XP à gagner chaque jour</small></span><div class="seg">${[[10,'Détente'],[20,'Normal'],[30,'Sérieux'],[50,'Intense']].map(([v,l])=>`<button type="button" data-act="goal" data-v="${v}" aria-pressed="${S.goal===v}">${l} · ${v}</button>`).join('')}</div></div>
     ${sw('set-sfx',S.set.sfx,'Effets sonores')}

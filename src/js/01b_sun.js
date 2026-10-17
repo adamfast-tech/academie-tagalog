@@ -196,6 +196,14 @@ function mascot(mood,cls,wx){
     front+=`<path d="M27 52C28 32 46 22 64 25C82 28 96 42 104 62C95 52 88 48 82 49Z" fill="#4C3FB4"/><path d="M27 52Q55 41 82 49" stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none"/><circle cx="104" cy="64" r="5.5" fill="#FCD116"/>`;
     fx+=`<text class="m-z" x="88" y="40" font-family="Baloo 2, sans-serif" font-weight="800" font-size="13" fill="#7C8FCB">z</text><text class="m-z" style="animation-delay:1.4s" x="96" y="30" font-family="Baloo 2, sans-serif" font-weight="800" font-size="10" fill="#7C8FCB">z</text>`;
   }
+  /* Mode anniversaire : chapeau de fête, yeux en cœur, petits cœurs autour */
+  if(typeof bdayOn==='function'&&bdayOn()){
+    if(!sad){const hz=(cx,cy)=>`<path d="M${cx} ${cy+5}C${cx-8} ${cy} ${cx-6.5} ${cy-7.5} ${cx} ${cy-3}C${cx+6.5} ${cy-7.5} ${cx+8} ${cy} ${cx} ${cy+5}Z" fill="#E8346E"/>`;
+      eyes=hz(49,58)+hz(71,58);mouth=`<path d="M47 70q13 15 26 0z" fill="${dark}"/><path d="M53 76q7 5 14 0q-7-4-14 0z" fill="#FF6B6B"/>`;}
+    back='';
+    front=`<g transform="rotate(-14 60 34)"><path d="M44 36L60 2L76 36Z" fill="#FF4D8D"/><path d="M48.5 27h23M52.5 19h15M56 11h8" stroke="#FFD43B" stroke-width="3.2" stroke-linecap="round"/><ellipse cx="60" cy="36" rx="17" ry="4" fill="#E8346E"/><circle cx="60" cy="2" r="5" fill="#FFD43B"/></g>`;
+    fx=[[4,34,0],[100,22,.9],[104,82,1.8]].map(([x,y,d])=>`<g transform="translate(${x} ${y}) scale(.55)"><path class="m-heart" style="animation-delay:${d}s" d="${HEART_PATH}" fill="#FF4D8D"/></g>`).join('');
+  }
   const faceFill=night?'url(#akSunN)':'url(#akSunG)';
   const bodyCls=['m-body',happy?'m-hop':'',wx==='cold'?'m-shiver':''].join(' ');
   return `<svg class="${cls||'m'}" viewBox="0 0 120 120" aria-hidden="true" overflow="visible">

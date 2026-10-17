@@ -541,6 +541,42 @@ svg.b *{animation:none!important}
 @keyframes vt-out-back{to{opacity:0;transform:translateX(34px)}}
 @keyframes vt-in-back{from{opacity:0;transform:translateX(-46px)}}
 
+/* ---------- Mode « Joyeux anniversaire Savannah ! » ---------- */
+:root.bday{--bg:#FFF3F7;--surface-2:#FCE9F0;--surface-3:#F8DCE7;--line:#F3D2DF;--dagat:#D93676;--dagat-d:#A3215A;--dagat-soft:#FCE0EB;--s1:#D93676;--s1-d:#A3215A}
+:root.bday[data-theme="dark"]{--bg:#1A0D18;--surface:#26132A;--surface-2:#311A36;--surface-3:#3D2243;--line:#40243F;--dagat:#FF6FA5;--dagat-d:#C93F7A;--dagat-soft:#4A1E38;--s1:#E0457F;--s1-d:#A82A5E}
+@media (prefers-color-scheme: dark){:root.bday:not([data-theme="light"]){--bg:#1A0D18;--surface:#26132A;--surface-2:#311A36;--surface-3:#3D2243;--line:#40243F;--dagat:#FF6FA5;--dagat-d:#C93F7A;--dagat-soft:#4A1E38;--s1:#E0457F;--s1-d:#A82A5E}}
+.bday .app{position:relative;z-index:1}
+.bday-fx{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.bday-fx i{position:absolute;bottom:-40px;display:block;animation:bdRise linear infinite}
+.bday-fx svg,.bday-burst svg{width:100%;height:100%;display:block}
+@keyframes bdRise{0%{transform:translate(0,0) rotate(-8deg)}25%{transform:translate(14px,-28vh) rotate(8deg)}50%{transform:translate(-10px,-56vh) rotate(-6deg)}75%{transform:translate(12px,-84vh) rotate(6deg)}100%{transform:translate(0,-118vh) rotate(-4deg)}}
+.bday-burst{position:fixed;inset:0;pointer-events:none;z-index:115}
+.bday-burst i{position:absolute;width:26px;height:26px;opacity:0}
+.m-heart{animation:mHeart 2.7s ease-in-out infinite}
+@keyframes mHeart{0%,100%{transform:translateY(0);opacity:.95}50%{transform:translateY(-7px);opacity:.55}}
+.bday-secret{display:block;margin:-6px auto 0;width:34px;height:34px;padding:8px;border:0;border-radius:50%;background:none;color:var(--ink-3);opacity:.22;cursor:pointer}
+.bday-secret:hover,.bday-secret:focus-visible{opacity:.6}
+.bday-wrap{display:grid;gap:6px}
+.bday-card{position:relative;display:flex;align-items:center;gap:14px;padding:16px;border-radius:var(--r);cursor:pointer;color:#fff;overflow:hidden;isolation:isolate;
+  background:linear-gradient(135deg,#FF5C93,#E8346E 55%,#B5267E);box-shadow:0 6px 22px -10px rgba(232,52,110,.8);-webkit-tap-highlight-color:transparent}
+.bday-card .bb{flex:none;width:50px;height:50px;border-radius:15px;display:grid;place-items:center;background:rgba(255,255,255,.18);font-size:1.7rem}
+.bday-card .lbl{flex:1;min-width:0;font-weight:800;font-size:1.06rem;line-height:1.25}
+.bday-card .lbl small{display:block;margin-top:3px;font-weight:600;font-size:.84rem;color:#FFE3EE}
+.bday-card .switch span{background:rgba(255,255,255,.28)}
+.bday-card .switch input:checked+span{background:#FFD43B}
+.bday-card.on::before{content:"";position:absolute;inset:-60%;z-index:-1;background:conic-gradient(from 0deg,transparent 0 60%,rgba(255,255,255,.28) 72%,transparent 86%);animation:uspin 5s linear infinite}
+.bday-card.on .bb{animation:bdPulse 1.6s ease-in-out infinite}
+@keyframes bdPulse{0%,100%{transform:none}50%{transform:scale(1.12) rotate(-6deg)}}
+.bday-reread{justify-self:center}
+.letter{background:linear-gradient(180deg,#FFF7FA,#FFEAF2);color:#4A1630;text-align:center;justify-items:center;padding-top:28px!important;max-width:520px}
+.letter-seal{width:64px;height:64px;filter:drop-shadow(0 6px 12px rgba(232,52,110,.45))}
+.letter-seal svg{width:100%;height:100%;animation:bdPulse 1.8s ease-in-out infinite}
+.letter-title{font-family:'Caveat','Bradley Hand','Segoe Print','Baloo 2',cursive;font-weight:700;font-size:2.3rem;line-height:1.05;color:#D93676;margin:0}
+.letter-body{display:grid;gap:10px;text-align:left;font-family:'Caveat','Bradley Hand','Segoe Print','Nunito',cursive;font-size:1.45rem;line-height:1.3;color:#4A1630;
+  background:repeating-linear-gradient(180deg,transparent 0 30px,rgba(217,54,118,.12) 30px 31px);padding:6px 4px}
+.letter-body p{margin:0}
+.letter-body p:last-child{font-weight:700;color:#D93676;text-align:center;margin-top:6px}
+.letter .btn{max-width:320px}
 /* ---------- Appui long : ni sélection de texte, ni menu Copier / Rechercher (sauf dans les champs de saisie) ---------- */
 body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 img,svg{-webkit-user-drag:none}
@@ -4382,10 +4418,13 @@ function confetti(){
   if(window.matchMedia&&matchMedia('(prefers-reduced-motion: reduce)').matches)return;
   const c=$('#confetti');const ctx=c.getContext&&c.getContext('2d');if(!ctx)return;
   c.hidden=false;const W=c.width=innerWidth,H=c.height=innerHeight;
-  const cols=['#FCD116','#CE1126','#0038A8','#1F9D55','#F2B300','#ffffff'];
+  const love=typeof bdayOn==='function'&&bdayOn();
+  const cols=love?['#FF4D8D','#FF7AA8','#E8346E','#FFB3CB','#FFD43B','#ffffff']:['#FCD116','#CE1126','#0038A8','#1F9D55','#F2B300','#ffffff'];
   const P=Array.from({length:140},()=>({x:W/2+(Math.random()-.5)*W*.3,y:H*.35,vx:(Math.random()-.5)*11,vy:-Math.random()*12-4,s:5+Math.random()*7,r:Math.random()*6,vr:(Math.random()-.5)*.3,c:pick(cols)}));
   let f=0;
-  (function loop(){ctx.clearRect(0,0,W,H);P.forEach(p=>{p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.c;ctx.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);ctx.restore();});
+  (function loop(){ctx.clearRect(0,0,W,H);P.forEach(p=>{p.vy+=.35;p.x+=p.vx;p.y+=p.vy;p.r+=p.vr;ctx.save();ctx.translate(p.x,p.y);ctx.rotate(p.r);ctx.fillStyle=p.c;
+      if(love){const s=p.s*1.1;ctx.beginPath();ctx.moveTo(0,s*.45);ctx.bezierCurveTo(-s,-s*.1,-s*.45,-s*.95,0,-s*.35);ctx.bezierCurveTo(s*.45,-s*.95,s,-s*.1,0,s*.45);ctx.fill();}
+      else ctx.fillRect(-p.s/2,-p.s/4,p.s,p.s/2);ctx.restore();});
     if(++f<110)requestAnimationFrame(loop);else{ctx.clearRect(0,0,W,H);c.hidden=true;}})();
 }
 
@@ -4642,6 +4681,14 @@ function mascot(mood,cls,wx){
     front+=`<path d="M27 52C28 32 46 22 64 25C82 28 96 42 104 62C95 52 88 48 82 49Z" fill="#4C3FB4"/><path d="M27 52Q55 41 82 49" stroke="#fff" stroke-width="5" stroke-linecap="round" fill="none"/><circle cx="104" cy="64" r="5.5" fill="#FCD116"/>`;
     fx+=`<text class="m-z" x="88" y="40" font-family="Baloo 2, sans-serif" font-weight="800" font-size="13" fill="#7C8FCB">z</text><text class="m-z" style="animation-delay:1.4s" x="96" y="30" font-family="Baloo 2, sans-serif" font-weight="800" font-size="10" fill="#7C8FCB">z</text>`;
   }
+  /* Mode anniversaire : chapeau de fête, yeux en cœur, petits cœurs autour */
+  if(typeof bdayOn==='function'&&bdayOn()){
+    if(!sad){const hz=(cx,cy)=>`<path d="M${cx} ${cy+5}C${cx-8} ${cy} ${cx-6.5} ${cy-7.5} ${cx} ${cy-3}C${cx+6.5} ${cy-7.5} ${cx+8} ${cy} ${cx} ${cy+5}Z" fill="#E8346E"/>`;
+      eyes=hz(49,58)+hz(71,58);mouth=`<path d="M47 70q13 15 26 0z" fill="${dark}"/><path d="M53 76q7 5 14 0q-7-4-14 0z" fill="#FF6B6B"/>`;}
+    back='';
+    front=`<g transform="rotate(-14 60 34)"><path d="M44 36L60 2L76 36Z" fill="#FF4D8D"/><path d="M48.5 27h23M52.5 19h15M56 11h8" stroke="#FFD43B" stroke-width="3.2" stroke-linecap="round"/><ellipse cx="60" cy="36" rx="17" ry="4" fill="#E8346E"/><circle cx="60" cy="2" r="5" fill="#FFD43B"/></g>`;
+    fx=[[4,34,0],[100,22,.9],[104,82,1.8]].map(([x,y,d])=>`<g transform="translate(${x} ${y}) scale(.55)"><path class="m-heart" style="animation-delay:${d}s" d="${HEART_PATH}" fill="#FF4D8D"/></g>`).join('');
+  }
   const faceFill=night?'url(#akSunN)':'url(#akSunG)';
   const bodyCls=['m-body',happy?'m-hop':'',wx==='cold'?'m-shiver':''].join(' ');
   return `<svg class="${cls||'m'}" viewBox="0 0 120 120" aria-hidden="true" overflow="visible">
@@ -4777,6 +4824,91 @@ function ultraFX(on,el){
 }
 
 /* =========================================================
+   01e — Mode « Joyeux anniversaire Savannah ! » (réglage caché sous le mode ultra)
+   Thème rose, cœurs qui flottent, Araw en chapeau de fête, mélodie et lettre surprise.
+   Réglage propre à l'appareil (non synchronisé avec le compte).
+   ========================================================= */
+const bdayOn=()=>!!(typeof S!=='undefined'&&S&&S.set&&S.set.bday);
+const BDAY_PRAISE=['Ang galing mo! 💖','Bravo, birthday girl !','Mahusay ka! 🎂','Parfait, comme toi ! 💕'];
+/* Message (encodé pour ne pas apparaître en clair dans le code) */
+const BDAY_MSG='WyJCb25qb3VyIG1hIFNhdmFubmFoLCBq4oCZZXNww6hyZSBxdWUgdHUgcGFzc2VyYXMgdW5lIGFncsOpYWJsZSBqb3VybsOpZS4gSmUgc2FpcyBxdWUgY2V0dGUgam91cm7DqWUgZXN0IGltcG9ydGFudGUgcG91ciB0b2ksIGFsb3JzIGplIGZlcmFpIG1vbiBtYXhpbXVtIHBvdXIgcXVlIGNlIHNvaXQgcsOpdXNzaSAhIiwgIk7igJlvdWJsaWUgcGFzIHF1ZSB0dSBlcyBiZWxsZSwgaW50ZWxsaWdlbnRlLCBkcsO0bGUsIGJpZW52ZWlsbGFudGUsIGfDqW7DqXJldXNlLCBjdXJpZXVzZSwgbWFsaW5lIGV0IGluY3JveWFibGUuIEV0IGF1c3NpIGF2ZWMgbGEgc2FsbGUgdOKAmWVzIFVSSEhIISBIZWhlLiIsICJKZSBzdWlzIGZpZXIgZGUgdG9pLCBzdXIgdG91dCBsZXMgYXNwZWN0cyAhIiwgIkplIHN1aXMgZXQgamUgcmVzdGVyYWkgYXZlYyB0b2kg8J+YmC4iLCAiSm95ZXV4IGFubml2ZXJzYWlyZSwgamUgdOKAmWFpbWUg8J+SmCJd';
+function bdayParas(){try{return JSON.parse(new TextDecoder().decode(Uint8Array.from(atob(BDAY_MSG),c=>c.charCodeAt(0))));}catch(e){return [];}}
+const HEART_PATH='M12 21.2C6.4 17.2 2 13.4 2 8.6 2 5.5 4.4 3 7.4 3c1.9 0 3.6 1 4.6 2.6C13 4 14.7 3 16.6 3 19.6 3 22 5.5 22 8.6c0 4.8-4.4 8.6-10 12.6z';
+const heartSvg=(fill,cls)=>`<svg class="${cls||''}" viewBox="0 0 24 24" aria-hidden="true"><path d="${HEART_PATH}" fill="${fill||'currentColor'}"/></svg>`;
+const BDAY_COLS=['#FF4D8D','#FF7AA8','#E8346E','#FFB3CB','#FFD43B','#C94BE8'];
+
+/* Thème : classe sur <html>, police manuscrite pour la lettre, cœurs en arrière-plan */
+function applyBday(){
+  const on=bdayOn(),root=document.documentElement;
+  root.classList.toggle('bday',on);
+  let fx=document.getElementById('bdayFx');
+  if(on&&!fx){
+    if(!document.getElementById('bdayFont')){const l=document.createElement('link');l.id='bdayFont';l.rel='stylesheet';l.href='https://fonts.googleapis.com/css2?family=Caveat:wght@500;700&display=swap';document.head.appendChild(l);}
+    fx=document.createElement('div');fx.id='bdayFx';fx.className='bday-fx';fx.setAttribute('aria-hidden','true');
+    fx.innerHTML=Array.from({length:16},(_,i)=>{const s=14+Math.round(Math.random()*20),d=(12+Math.random()*12).toFixed(1),dl=(-Math.random()*20).toFixed(1),x=(Math.random()*96).toFixed(1),o=(.18+Math.random()*.3).toFixed(2);
+      return `<i style="left:${x}%;width:${s}px;height:${s}px;animation-duration:${d}s;animation-delay:${dl}s;opacity:${o}">${heartSvg(BDAY_COLS[i%BDAY_COLS.length])}</i>`;}).join('');
+    document.body.appendChild(fx);
+  }else if(!on&&fx)fx.remove();
+}
+/* « Joyeux anniversaire » (mélodie traditionnelle, domaine public) */
+function playBdayTune(){
+  if(!S.set.sfx)return;const ac=SFX.ctx();if(!ac)return;
+  const q=.36,G=392,A=440,B=493.88,C=523.25,D=587.33,E=659.25,F=698.46,G5=783.99;
+  const notes=[[G,.75],[G,.25],[A,1],[G,1],[C,1],[B,2],[G,.75],[G,.25],[A,1],[G,1],[D,1],[C,2]];
+  let t=ac.currentTime+.05;
+  try{notes.forEach(([f,b])=>{const o=ac.createOscillator(),g=ac.createGain(),d=b*q;o.type='triangle';o.frequency.value=f;
+    g.gain.setValueAtTime(0,t);g.gain.linearRampToValueAtTime(.13,t+.02);g.gain.setValueAtTime(.13,t+d*.7);g.gain.exponentialRampToValueAtTime(.001,t+d*.98);
+    o.connect(g).connect(ac.destination);o.start(t);o.stop(t+d);t+=d;});}catch(e){}
+}
+/* Explosion de cœurs depuis l'élément touché */
+function bdayBurst(el){
+  if(reduced())return;
+  const r=(el||document.body).getBoundingClientRect(),x=r.left+r.width/2,y=r.top+r.height/2;
+  const fx=document.createElement('div');fx.className='bday-burst';fx.setAttribute('aria-hidden','true');
+  const n=26;fx.innerHTML=Array.from({length:n},(_,i)=>`<i style="left:${x}px;top:${y}px">${heartSvg(BDAY_COLS[i%BDAY_COLS.length])}</i>`).join('');
+  document.body.appendChild(fx);
+  $$('i',fx).forEach((h,i)=>{const a=(i/n)*Math.PI*2+Math.random()*.5,d=90+Math.random()*170,s=.6+Math.random()*1.1,rot=(Math.random()-.5)*80;
+    h.animate([{opacity:0,transform:'translate(-50%,-50%) scale(.2)'},{opacity:1,transform:`translate(calc(-50% + ${Math.cos(a)*d*.55}px),calc(-50% + ${Math.sin(a)*d*.55}px)) scale(${s}) rotate(${rot/2}deg)`,offset:.35},
+      {opacity:0,transform:`translate(calc(-50% + ${Math.cos(a)*d}px),calc(-50% + ${Math.sin(a)*d+60}px)) scale(${s*.8}) rotate(${rot}deg)`}],{duration:1100+Math.random()*500,easing:'cubic-bezier(.2,.8,.3,1)',fill:'forwards'});});
+  setTimeout(()=>fx.remove(),1800);
+}
+function setBday(on,el){
+  S.set.bday=!!on;save();applyBday();
+  if(!P.on)render();
+  if(on){
+    try{if(navigator.vibrate)navigator.vibrate([20,60,20,60,40]);}catch(e){}
+    const target=el||($('#set-bday')&&$('#set-bday').closest('.bday-card'));
+    bdayBurst(target);confetti();playBdayTune();
+    setTimeout(openBdayLetter,reduced()?0:1100);
+  }else toast('Mode anniversaire désactivé.');
+}
+/* La lettre */
+function openBdayLetter(){
+  const ps=bdayParas();
+  modal(`<div class="sheet letter" role="dialog" aria-label="Message pour Savannah">
+    <div class="letter-seal" aria-hidden="true">${heartSvg('#E8346E','seal-heart')}</div>
+    <h2 class="letter-title">Pour toi, Savannah</h2>
+    <div class="letter-body">${ps.map(p=>`<p>${esc(p).replace(/ ([!?;:])/g,'\u202F$1')}</p>`).join('')}</div>
+    <button class="btn primary block" data-act="modal-close">Fermer 💖</button></div>`);
+  const sh=$('#modal .letter');if(!sh||reduced())return;
+  animIn($('.letter-seal',sh),[{opacity:0,transform:'scale(.3) rotate(-20deg)'},{opacity:1,transform:'scale(1.15) rotate(6deg)',offset:.6},{opacity:1,transform:'none'}],{duration:700,easing:SPRING});
+  animIn($('.letter-title',sh),POP,{duration:520,delay:200,easing:SPRING});
+  stagger($$('.letter-body p',sh),[{opacity:0,transform:'translateY(14px)'},{opacity:1,transform:'none'}],{duration:520,delay:420,easing:EASE_OUT},380);
+}
+/* Carte du réglage (Profil, sous le mode ultra) */
+function bdayCard(){
+  const on=bdayOn();
+  return `<div class="bday-wrap"><label class="bday-card${on?' on':''}" for="set-bday">
+    <span class="bb">🎂</span>
+    <span class="lbl">Joyeux anniversaire Savannah !<small>${on?'Mode anniversaire activé 💕':'Active le mode anniversaire 💝'}</small></span>
+    <span class="switch"><input type="checkbox" id="set-bday" data-set="bday" ${on?'checked':''} aria-label="Mode anniversaire"><span></span></span></label>
+    ${on?'<button class="link-btn bday-reread" data-act="bday-letter">💌 Relire le message</button>':''}</div>`;
+}
+function bdaySpot(){
+  return bdayOn()||V.bdayOpen?bdayCard():`<button class="bday-secret" data-act="bday-reveal" aria-label="Surprise">${heartSvg()}</button>`;
+}
+
+/* =========================================================
    02 — Modèle : cours, leçons, lexique, état, progression
    ========================================================= */
 const SECS=TL.SECTIONS, UNITS=TL.UNITS, VERBS=TL.VERBS, STORIES=TL.STORIES;
@@ -4881,7 +5013,7 @@ function defState(){return {v:1,name:'',started:Date.now(),xp:0,gems:100,hearts:
   streak:0,best:0,last:null,freezes:0,goal:20,days:{},done:{},tested:{},words:{},badges:{},stories:{},mistakes:[],
   stats:{ans:0,ok:0,lessons:0,perfect:0,conj:0,nums:0,listen:0,typed:0,early:0,late:0},
   day:{d:today(),xp:0,lessons:0,perfect:0,ok:0,combo:0,stories:0,listen:0,typed:0,conj:0,claimed:{}},
-  set:{sfx:true,tts:true,rate:.9,voice:'',listen:true,type:true,zen:false,ultra:false,unlock:false,theme:'auto',auto:true,wx:'auto',anim:true,natural:true,loc:'auto',locFreq:'day',place:null,gps:null,zoom:false},
+  set:{sfx:true,tts:true,rate:.9,voice:'',listen:true,type:true,zen:false,ultra:false,unlock:false,theme:'auto',auto:true,wx:'auto',anim:true,natural:true,loc:'auto',locFreq:'day',place:null,gps:null,zoom:false,bday:false},
   seenWelcome:false,updated:0,owner:null};}
 let S=defState();
 function load(){
@@ -5812,7 +5944,7 @@ function pCheck(){
   const showAns=!res.ok||res.showAns||res.typo;
   const combo=res.ok&&P.combo>=3&&P.combo%1===0&&[3,5,10,15,20,30].includes(P.combo)?`<span class="combo">${P.combo} bonnes réponses d’affilée !</span>`:'';
   $('#pFb').innerHTML=`<span class="badge-ic">${ic(res.ok?'check':'x')}</span><div>
-    <h3>${res.ok?(res.typo?'Presque parfait !':pick(PRAISE)):'Réponse correcte :'}</h3>
+    <h3>${res.ok?(res.typo?'Presque parfait !':pick(bdayOn()?PRAISE.concat(BDAY_PRAISE,BDAY_PRAISE):PRAISE)):'Réponse correcte :'}</h3>
     ${showAns&&res.ans?`<div class="ans ${res.ok?'':'tl'}">${res.ok?'Réponse : ':''}${esc(res.ans)}</div>`:''}
     ${res.expl?`<div class="expl">${esc(res.expl)}</div>`:''}${combo}</div>`;
   paintHead();paintFoot();
@@ -6116,7 +6248,7 @@ function sidePanelAccount(){
   return row('Sauvegarde ta progression','Crée un compte pour la retrouver sur tous tes appareils.',`<div class="row-btns" style="margin-top:10px"><button class="btn primary sm" data-act="acct-go" data-id="signup">Créer un compte</button><button class="btn sm" data-act="acct-go" data-id="login">Connexion</button></div>`);
 }
 function renderChrome(){
-  $('#brand').innerHTML=`${mascot('','b','none')}<div>Akademya<small>Tagalog</small></div>`;
+  $('#brand').innerHTML=`${mascot('','b','none')}<div>Akademya<small>${bdayOn()?'Tagalog · 🎂':'Tagalog'}</small></div>`;
   $('#railNav').innerHTML=TABS.map(t=>`<button class="rail-btn" data-act="nav" data-to="${t.id}" ${V.tab===t.id?'aria-current="page"':''}>${ic(t.ic)}${t.l}</button>`).join('');
   $('#tabbar').innerHTML=TABS.map(t=>`<button class="tab" data-act="nav" data-to="${t.id}" ${V.tab===t.id?'aria-current="page"':''}>${ic(t.ic)}<span>${t.l}</span></button>`).join('');
   const q=TTS.quality;
@@ -6150,12 +6282,12 @@ function renderLearn(){
   const cur=currentLesson();
   let html=topbar('Apprendre');
   if(!S.seenWelcome&&!Object.keys(S.done).length){
-    html+=`<div class="hero">${mascot('','m')}<div style="display:grid;gap:8px"><h1>Maligayang pagdating!</h1><p class="muted">Bienvenue dans ton cours de tagalog. Je suis Araw, « soleil » en tagalog. Je m’habille selon la météo de ta ville. On commence par le début, ou tu passes un test pour sauter des sections ?</p>${wxBlock()}
+    html+=`<div class="hero">${mascot('','m')}<div style="display:grid;gap:8px"><h1>${bdayOn()?'Maligayang kaarawan, Savannah! 🎂':'Maligayang pagdating!'}</h1><p class="muted">Bienvenue dans ton cours de tagalog. Je suis Araw, « soleil » en tagalog. Je m’habille selon la météo de ta ville. On commence par le début, ou tu passes un test pour sauter des sections ?</p>${wxBlock()}
      <div style="display:flex;gap:8px;flex-wrap:wrap"><button class="btn primary sm" data-act="welcome-start">Je débute</button><button class="btn sm" data-act="placement">J’ai déjà des bases</button>${Cloud.available()&&!Cloud.user?'<button class="btn sm ghost" data-act="acct-go" data-id="login">J’ai un compte</button>':''}</div></div></div>`;
   }
   else if(cur&&Object.keys(S.done).length){
     const h=new Date().getHours();const hello=h<11?'Magandang umaga':h<14?'Magandang tanghali':h<18?'Magandang hapon':'Magandang gabi';
-    html+=`<div class="hero">${mascot('','m')}<div style="display:grid;gap:8px;min-width:0"><h1>${hello}${S.name?', '+esc(S.name):''}!</h1>
+    html+=`<div class="hero">${mascot('','m')}<div style="display:grid;gap:8px;min-width:0"><h1>${bdayOn()?'Maligayang kaarawan, Savannah! 🎂':hello+(S.name?', '+esc(S.name):'')+'!'}</h1>${bdayOn()?'<button class="link-btn bday-reread" data-act="bday-letter">💌 Relire ton message</button>':''}
      ${wxBlock()}<p class="muted">Prochaine étape : ${cur.u?`unité ${cur.u.n} · ${esc(cur.u.t)} — ${esc(cur.t)}`:esc(cur.t)+' de la section '+cur.sec}.</p>
      <div><button class="btn primary sm" data-act="start" data-id="${cur.id}">${ic('play')}Continuer</button></div></div></div>`;
     if(Cloud.available()&&Cloud.ready&&!Cloud.user&&!V.noNudge)html+=`<div class="nudge">${ic('cloud')}<span><b>Sauvegarde ta progression</b><span class="small muted">Un compte gratuit pour la retrouver sur tous tes appareils.</span></span><button class="btn primary sm" data-act="acct-go" data-id="signup">Créer un compte</button><button class="icon-btn" data-act="nudge-x" aria-label="Masquer">${ic('x')}</button></div>`;
@@ -6424,6 +6556,7 @@ function renderProfile(){
    </div>
    <div class="section-h"><h2>Réglages</h2></div>
    ${ultraCard()}
+   ${bdaySpot()}
    <div class="panel set">
     <div class="set-row"><span class="lbl">Objectif quotidien<small>XP à gagner chaque jour</small></span><div class="seg">${[[10,'Détente'],[20,'Normal'],[30,'Sérieux'],[50,'Intense']].map(([v,l])=>`<button type="button" data-act="goal" data-v="${v}" aria-pressed="${S.goal===v}">${l} · ${v}</button>`).join('')}</div></div>
     ${sw('set-sfx',S.set.sfx,'Effets sonores')}
@@ -6613,6 +6746,9 @@ document.addEventListener('click',e=>{
     case 'shop':openShop();break;
     case 'info-streak':openStreakInfo();break;
     case 'info-hearts':openHeartsInfo();break;
+    case 'bday-reveal':{V.bdayOpen=true;const w=a.parentElement;a.outerHTML=bdayCard();const c=w&&$('.bday-wrap',w);
+      if(c)animIn(c,[{opacity:0,transform:'translateY(-10px) scale(.96)'},{opacity:1,transform:'none'}],{duration:420,easing:SPRING});SFX.tap();break;}
+    case 'bday-letter':openBdayLetter();break;
     case 'loc-mode':
       if(d.v==='fixed'){S.set.loc='fixed';if(!S.set.place){const g=S.set.gps,c=g?nearestCity(g.lat,g.lon):null;V.geoReg=c?c.reg:'93';V.geoDep=c?c.dep:'06';}}
       else{S.set.loc='auto';}
@@ -6676,6 +6812,7 @@ document.addEventListener('input',e=>{
 document.addEventListener('change',e=>{
   const t=e.target;
   if(t.dataset&&t.dataset.set==='ultra'){setUltra(t.checked);}
+  else if(t.dataset&&t.dataset.set==='bday'){setBday(t.checked);}
   else if(t.dataset&&t.dataset.set){S.set[t.dataset.set]=t.checked;if(t.dataset.set==='zen'&&!t.checked)syncHearts();if(t.dataset.set==='zoom')applyZoom();save();render();const n=document.getElementById(t.id);if(n)try{n.focus({preventScroll:true});}catch(e){}}
   else if(t.id==='geoReg'){V.geoReg=t.value;V.geoDep=null;render();}
   else if(t.id==='geoDep'){V.geoDep=t.value;render();}
@@ -6706,7 +6843,7 @@ document.addEventListener('keydown',e=>{
 function boot(){
   load();rollDay();syncHearts();
   const st=checkStreak();
-  TTS.init();AUDIO.load();applyTheme();applyZoom();Cloud.init();
+  TTS.init();AUDIO.load();applyTheme();applyZoom();applyBday();Cloud.init();
   const h=(location.hash||'').replace('#','');if(TABS.some(t=>t.id===h))V.tab=h;
   V.enter=true;render();
   loadWeather().then(ch=>{if(ch&&!P.on)render();});

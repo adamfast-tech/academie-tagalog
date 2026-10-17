@@ -121,6 +121,9 @@ document.addEventListener('click',e=>{
     case 'shop':openShop();break;
     case 'info-streak':openStreakInfo();break;
     case 'info-hearts':openHeartsInfo();break;
+    case 'bday-reveal':{V.bdayOpen=true;const w=a.parentElement;a.outerHTML=bdayCard();const c=w&&$('.bday-wrap',w);
+      if(c)animIn(c,[{opacity:0,transform:'translateY(-10px) scale(.96)'},{opacity:1,transform:'none'}],{duration:420,easing:SPRING});SFX.tap();break;}
+    case 'bday-letter':openBdayLetter();break;
     case 'loc-mode':
       if(d.v==='fixed'){S.set.loc='fixed';if(!S.set.place){const g=S.set.gps,c=g?nearestCity(g.lat,g.lon):null;V.geoReg=c?c.reg:'93';V.geoDep=c?c.dep:'06';}}
       else{S.set.loc='auto';}
@@ -184,6 +187,7 @@ document.addEventListener('input',e=>{
 document.addEventListener('change',e=>{
   const t=e.target;
   if(t.dataset&&t.dataset.set==='ultra'){setUltra(t.checked);}
+  else if(t.dataset&&t.dataset.set==='bday'){setBday(t.checked);}
   else if(t.dataset&&t.dataset.set){S.set[t.dataset.set]=t.checked;if(t.dataset.set==='zen'&&!t.checked)syncHearts();if(t.dataset.set==='zoom')applyZoom();save();render();const n=document.getElementById(t.id);if(n)try{n.focus({preventScroll:true});}catch(e){}}
   else if(t.id==='geoReg'){V.geoReg=t.value;V.geoDep=null;render();}
   else if(t.id==='geoDep'){V.geoDep=t.value;render();}
@@ -214,7 +218,7 @@ document.addEventListener('keydown',e=>{
 function boot(){
   load();rollDay();syncHearts();
   const st=checkStreak();
-  TTS.init();AUDIO.load();applyTheme();applyZoom();Cloud.init();
+  TTS.init();AUDIO.load();applyTheme();applyZoom();applyBday();Cloud.init();
   const h=(location.hash||'').replace('#','');if(TABS.some(t=>t.id===h))V.tab=h;
   V.enter=true;render();
   loadWeather().then(ch=>{if(ch&&!P.on)render();});

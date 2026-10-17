@@ -113,7 +113,7 @@ function pCheck(){
   const showAns=!res.ok||res.showAns||res.typo;
   const combo=res.ok&&P.combo>=3&&P.combo%1===0&&[3,5,10,15,20,30].includes(P.combo)?`<span class="combo">${P.combo} bonnes réponses d’affilée !</span>`:'';
   $('#pFb').innerHTML=`<span class="badge-ic">${ic(res.ok?'check':'x')}</span><div>
-    <h3>${res.ok?(res.typo?'Presque parfait !':pick(PRAISE)):'Réponse correcte :'}</h3>
+    <h3>${res.ok?(res.typo?'Presque parfait !':pick(bdayOn()?PRAISE.concat(BDAY_PRAISE,BDAY_PRAISE):PRAISE)):'Réponse correcte :'}</h3>
     ${showAns&&res.ans?`<div class="ans ${res.ok?'':'tl'}">${res.ok?'Réponse : ':''}${esc(res.ans)}</div>`:''}
     ${res.expl?`<div class="expl">${esc(res.expl)}</div>`:''}${combo}</div>`;
   paintHead();paintFoot();

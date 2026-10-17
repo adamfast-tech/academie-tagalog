@@ -527,6 +527,42 @@ svg.b *{animation:none!important}
 @keyframes vt-out-back{to{opacity:0;transform:translateX(34px)}}
 @keyframes vt-in-back{from{opacity:0;transform:translateX(-46px)}}
 
+/* ---------- Mode « Joyeux anniversaire Savannah ! » ---------- */
+:root.bday{--bg:#FFF3F7;--surface-2:#FCE9F0;--surface-3:#F8DCE7;--line:#F3D2DF;--dagat:#D93676;--dagat-d:#A3215A;--dagat-soft:#FCE0EB;--s1:#D93676;--s1-d:#A3215A}
+:root.bday[data-theme="dark"]{--bg:#1A0D18;--surface:#26132A;--surface-2:#311A36;--surface-3:#3D2243;--line:#40243F;--dagat:#FF6FA5;--dagat-d:#C93F7A;--dagat-soft:#4A1E38;--s1:#E0457F;--s1-d:#A82A5E}
+@media (prefers-color-scheme: dark){:root.bday:not([data-theme="light"]){--bg:#1A0D18;--surface:#26132A;--surface-2:#311A36;--surface-3:#3D2243;--line:#40243F;--dagat:#FF6FA5;--dagat-d:#C93F7A;--dagat-soft:#4A1E38;--s1:#E0457F;--s1-d:#A82A5E}}
+.bday .app{position:relative;z-index:1}
+.bday-fx{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.bday-fx i{position:absolute;bottom:-40px;display:block;animation:bdRise linear infinite}
+.bday-fx svg,.bday-burst svg{width:100%;height:100%;display:block}
+@keyframes bdRise{0%{transform:translate(0,0) rotate(-8deg)}25%{transform:translate(14px,-28vh) rotate(8deg)}50%{transform:translate(-10px,-56vh) rotate(-6deg)}75%{transform:translate(12px,-84vh) rotate(6deg)}100%{transform:translate(0,-118vh) rotate(-4deg)}}
+.bday-burst{position:fixed;inset:0;pointer-events:none;z-index:115}
+.bday-burst i{position:absolute;width:26px;height:26px;opacity:0}
+.m-heart{animation:mHeart 2.7s ease-in-out infinite}
+@keyframes mHeart{0%,100%{transform:translateY(0);opacity:.95}50%{transform:translateY(-7px);opacity:.55}}
+.bday-secret{display:block;margin:-6px auto 0;width:34px;height:34px;padding:8px;border:0;border-radius:50%;background:none;color:var(--ink-3);opacity:.22;cursor:pointer}
+.bday-secret:hover,.bday-secret:focus-visible{opacity:.6}
+.bday-wrap{display:grid;gap:6px}
+.bday-card{position:relative;display:flex;align-items:center;gap:14px;padding:16px;border-radius:var(--r);cursor:pointer;color:#fff;overflow:hidden;isolation:isolate;
+  background:linear-gradient(135deg,#FF5C93,#E8346E 55%,#B5267E);box-shadow:0 6px 22px -10px rgba(232,52,110,.8);-webkit-tap-highlight-color:transparent}
+.bday-card .bb{flex:none;width:50px;height:50px;border-radius:15px;display:grid;place-items:center;background:rgba(255,255,255,.18);font-size:1.7rem}
+.bday-card .lbl{flex:1;min-width:0;font-weight:800;font-size:1.06rem;line-height:1.25}
+.bday-card .lbl small{display:block;margin-top:3px;font-weight:600;font-size:.84rem;color:#FFE3EE}
+.bday-card .switch span{background:rgba(255,255,255,.28)}
+.bday-card .switch input:checked+span{background:#FFD43B}
+.bday-card.on::before{content:"";position:absolute;inset:-60%;z-index:-1;background:conic-gradient(from 0deg,transparent 0 60%,rgba(255,255,255,.28) 72%,transparent 86%);animation:uspin 5s linear infinite}
+.bday-card.on .bb{animation:bdPulse 1.6s ease-in-out infinite}
+@keyframes bdPulse{0%,100%{transform:none}50%{transform:scale(1.12) rotate(-6deg)}}
+.bday-reread{justify-self:center}
+.letter{background:linear-gradient(180deg,#FFF7FA,#FFEAF2);color:#4A1630;text-align:center;justify-items:center;padding-top:28px!important;max-width:520px}
+.letter-seal{width:64px;height:64px;filter:drop-shadow(0 6px 12px rgba(232,52,110,.45))}
+.letter-seal svg{width:100%;height:100%;animation:bdPulse 1.8s ease-in-out infinite}
+.letter-title{font-family:'Caveat','Bradley Hand','Segoe Print','Baloo 2',cursive;font-weight:700;font-size:2.3rem;line-height:1.05;color:#D93676;margin:0}
+.letter-body{display:grid;gap:10px;text-align:left;font-family:'Caveat','Bradley Hand','Segoe Print','Nunito',cursive;font-size:1.45rem;line-height:1.3;color:#4A1630;
+  background:repeating-linear-gradient(180deg,transparent 0 30px,rgba(217,54,118,.12) 30px 31px);padding:6px 4px}
+.letter-body p{margin:0}
+.letter-body p:last-child{font-weight:700;color:#D93676;text-align:center;margin-top:6px}
+.letter .btn{max-width:320px}
 /* ---------- Appui long : ni sélection de texte, ni menu Copier / Rechercher (sauf dans les champs de saisie) ---------- */
 body{-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
 img,svg{-webkit-user-drag:none}
