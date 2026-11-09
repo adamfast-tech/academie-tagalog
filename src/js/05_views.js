@@ -395,6 +395,7 @@ function render(){
   const html=V.tab==='learn'?renderLearn():V.tab==='practice'?renderPractice():V.tab==='stories'?renderStories():V.tab==='guide'?renderGuide():renderProfile();
   m.innerHTML=html;
   renderChrome();
+  skyMount();
   if(V.tab==='learn'&&!V.scrolled&&!V.justDone){V.scrolled=true;const cur=currentLesson();if(cur&&Object.keys(S.done).length){const el=$('#n-'+cur.id);if(el)setTimeout(()=>el.scrollIntoView({block:'center'}),30);}}
   afterRender();
 }

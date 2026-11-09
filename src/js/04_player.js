@@ -7,7 +7,7 @@ const XP_BASE={words:10,phrases:10,conj:10,num:10,bay:10,review:15,exam:30};
 
 function freshInner(){const old=$('#pInner');const n=old.cloneNode(false);old.replaceWith(n);return n;}
 function openPlayer(){
-  const p=$('#player');const was=!p.hidden;p.hidden=false;document.body.style.overflow='hidden';
+  const p=$('#player');const was=!p.hidden;p.hidden=false;document.body.style.overflow='hidden';skyStop();
   $('#pClose').innerHTML=`<svg viewBox="0 0 24 24">${ICONS.x}</svg>`;
   $('#pBar').parentElement.classList.remove('hot','glint');
   if(!was){p.getAnimations&&p.getAnimations().forEach(a=>a.cancel());animIn(p,[{opacity:0,transform:'translateY(36px) scale(.985)'},{opacity:1,transform:'none'}],{duration:380});}
@@ -90,7 +90,7 @@ function pCheck(){
   P.state='feedback';P.lastOk=res.ok;
   P.graded++;S.stats.ans++;
   if(res.ok){
-    SFX.ok();P.combo++;P.maxCombo=Math.max(P.maxCombo,P.combo);S.day.combo=Math.max(S.day.combo,P.combo);
+    SFX.ok();haptic(12);P.combo++;P.maxCombo=Math.max(P.maxCombo,P.combo);S.day.combo=Math.max(S.day.combo,P.combo);
     P.okSlots.add(ex.slot);if(!P.failed.has(ex.slot))P.firstOk++;
     S.stats.ok++;S.day.ok++;
     if(ex.listen){S.stats.listen++;S.day.listen++;}
@@ -101,7 +101,7 @@ function pCheck(){
     if(P.mode==='mistakes')clearMistake(ex.ref);
     if(ex.ref&&!ex.k&&ex.ref.startsWith('b'))srs(ex.ref,true);
   }else{
-    SFX.bad();P.combo=0;P.mistakes++;P.failed.add(ex.slot);
+    SFX.bad();haptic([28,45,28]);P.combo=0;P.mistakes++;P.failed.add(ex.slot);
     if(ex.k)srs(ex.k,false);
     addMistake(ex.ref||ex.k);
     if(P.usesHearts){S.hearts=Math.max(0,S.hearts-1);if(S.hearts<HEART_MAX&&S.hearts===HEART_MAX-1)S.heartsTs=Date.now();}
@@ -112,7 +112,7 @@ function pCheck(){
   const foot=$('#pFoot');foot.className='pfoot '+(res.ok?'ok':'bad');
   const showAns=!res.ok||res.showAns||res.typo;
   const combo=res.ok&&P.combo>=3&&P.combo%1===0&&[3,5,10,15,20,30].includes(P.combo)?`<span class="combo">${P.combo} bonnes réponses d’affilée !</span>`:'';
-  $('#pFb').innerHTML=`<span class="badge-ic">${ic(res.ok?'check':'x')}</span><div>
+  $('#pFb').innerHTML=`<span class="fb-araw">${mascot(res.ok?'happy':'sad','fb-m')}<span class="badge-ic">${ic(res.ok?'check':'x')}</span></span><div>
     <h3>${res.ok?(res.typo?'Presque parfait !':pick(bdayOn()?PRAISE.concat(BDAY_PRAISE,BDAY_PRAISE):PRAISE)):'Réponse correcte :'}</h3>
     ${showAns&&res.ans?`<div class="ans ${res.ok?'':'tl'}">${res.ok?'Réponse : ':''}${esc(res.ans)}</div>`:''}
     ${res.expl?`<div class="expl">${esc(res.expl)}</div>`:''}${combo}</div>`;
@@ -122,6 +122,9 @@ function pCheck(){
   animIn(foot,[{transform:'translateY(22px)'},{transform:'none'}],{duration:360,easing:SPRING});
   animIn($('.badge-ic',fb),[{opacity:0,transform:'scale(.2) rotate(-30deg)'},{opacity:1,transform:'scale(1.18)',offset:.6},{opacity:1,transform:'none'}],{duration:480});
   stagger($$('h3,.ans,.expl,.combo',fb),RISE,{duration:280,delay:90},55);
+  const fm=$('svg.fb-m',fb);
+  if(res.ok)animIn(fm,[{opacity:0,transform:'translateY(10px) scale(.55)'},{opacity:1,transform:'translateY(-7px) scale(1.08)',offset:.55},{opacity:1,transform:'none'}],{duration:520,easing:SPRING});
+  else animIn(fm,[{transform:'none'},{transform:'rotate(-12deg)'},{transform:'rotate(9deg)'},{transform:'rotate(-5deg)'},{transform:'none'}],{duration:560,easing:'ease-out'});
   if(res.ok){replayClass($('.badge-ic',fb),'burst');}
   else{
     animIn($('#pInner'),[{transform:'none'},{transform:'translateX(-11px)'},{transform:'translateX(9px)'},{transform:'translateX(-6px)'},{transform:'translateX(3px)'},{transform:'none'}],{duration:440,easing:'ease-out'});
@@ -209,7 +212,7 @@ function finishSession(){
   const badges=checkBadges(),qs=claimQuests();
   save();
   Cloud.log(L?L.id:mode==='jump'?'jump-'+P.target:(P.kind||mode),mode,xp,acc);
-  SFX.done();confetti();
+  SFX.done();confetti();haptic([15,60,15,60,40]);
   const title=mode==='jump'?'Section débloquée !':mode==='exam'?'Épreuve réussie !':perfect?'Leçon parfaite !':'Leçon terminée !';
   const mm=Math.floor(secs/60),ss=String(secs%60).padStart(2,'0');
   $('#pBar').style.width='100%';$('#pFoot').className='pfoot';$('#pFb').innerHTML='';
@@ -344,7 +347,7 @@ function storyFinish(){
   addXP(xp);S.gems+=gems;const streakUp=touchStreak();
   const badges=checkBadges(),qs=claimQuests();save();
   Cloud.log(st.id,'story',xp,null);
-  SFX.done();confetti();
+  SFX.done();confetti();haptic([15,60,15,60,40]);
   $('#pBar').style.width='100%';
   const sf=freshInner();
   sf.innerHTML=`<div class="done">${mascot('happy','lvl-ring')}<h1>Histoire terminée !</h1><p class="muted">${esc(st.t)} — ${esc(st.fr)}</p>

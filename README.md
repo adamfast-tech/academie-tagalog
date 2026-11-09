@@ -31,6 +31,8 @@ Site statique (HTML/CSS/JS), installable sur iPhone, Android, iPad et ordinateur
 - Voix naturelles Gemini (fichiers MP3 pré-générés, une voix par personnage dans les histoires) ; à défaut, voix du navigateur : tagalog (fil-PH) si l'appareil en a une, sinon voix proche (indonésien, malais, espagnol). Lecture lente.
 - Lexique : guides de grammaire, dictionnaire, tableaux de conjugaison, nombres en lettres (1 à 999 999), baybayin, prononciation.
 - Mascotte Araw (« soleil ») animée, habillée selon la météo en direct de ta ville (Open-Meteo, sans clé) : lunettes, parapluie, bonnet, écharpe, bonnet de nuit… avec une phrase tagalog sur le temps qu'il fait.
+- Ciel animé (shader WebGL, ~6 Ko) derrière l’en-tête de chaque onglet : soleil, nuages, pluie, orage, neige, brouillard, vent ou nuit étoilée selon la météo d’Araw ; s’adapte au thème clair / sombre. Pause hors écran, onglet caché ou leçon ouverte ; image fixe si les animations sont coupées ; dégradé simple sans WebGL.
+- Araw réagit à chaque réponse (saut ou mine triste) et sautille quand on le touche ; vibrations sur Android (avec les sons).
 - Ville de la météo : position automatique (actualisée une fois par jour, par semaine, par mois ou seulement à la demande, en mode basse consommation, arrondie à ~1 km et gardée sur l’appareil), ou ville choisie par région → département → ville (≈ 600 villes de France et des Philippines), ou recherche de n’importe quelle ville du monde. Nice par défaut.
 - Thème clair / sombre, réglages (objectif, sons, voix, mode ultra, vies illimitées, tout débloquer), export / import de la progression.
 - Comptes en ligne (e-mail ou nom d’utilisateur + mot de passe) : progression synchronisée entre appareils, historique des dernières leçons.
