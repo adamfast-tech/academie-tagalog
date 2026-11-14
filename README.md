@@ -51,8 +51,6 @@ src/js/*.js           moteur (exercices, lecteur, vues, navigation)
 audio/clips.json      liste des extraits à enregistrer (produite par tools/clips.mjs)
 audio/<id>.mp3        voix Gemini générées ; audio/index.json les liste pour le site
 tools/                génération des voix (clips.mjs, generer_audio.py, generer_audio.cmd)
-vendor/               supabase-js 2.117.0 (licence MIT)
-supabase/             schéma des tables du tagalog (schema-tagalog.sql)
 ```
 
 ## Modifier le contenu
@@ -89,29 +87,15 @@ La clé est lue dans `GEMINI_API_KEY` ou saisie au clavier ; elle n'est jamais e
 Si le contenu du cours change : `node tools/clips.mjs` puis relancer la génération (seuls les nouveaux extraits sont demandés).
 Aperçu local avec les voix : `py -m http.server 8000` dans le dossier du site, puis http://localhost:8000.
 
-## Comptes et progression (Supabase)
+## Comptes et progression
 
-Le site utilise le même projet Supabase que l’Académie CMD & PowerShell : **un seul compte pour les deux sites**
-(même domaine github.io, donc une connexion sur l’un vaut aussi sur l’autre).
-
-- Comptes, profils (nom d’utilisateur), connexion par nom d’utilisateur (`resolve_login`) et suppression de compte
-  (Edge Function `delete-account`) : communs, définis dans le dépôt `academie-cmd-powershell` (`supabase/schema.sql`).
-- Propres au tagalog : `tagalog_progress` (un état JSON par compte, avec XP, leçons, série et mots appris calculés côté serveur)
-  et `tagalog_history` (dernières leçons). Schéma : [`supabase/schema-tagalog.sql`](supabase/schema-tagalog.sql).
-- RLS : chacun ne lit et n’écrit que ses propres lignes ; aucun accès sans connexion.
-- Sans compte, la progression reste dans le navigateur ; elle est fusionnée dans le compte à la première connexion
-  (on garde le meilleur des deux : XP, leçons, mots, badges ; vies, perlas et réglages suivent l’appareil le plus récent).
-- Le thème, la voix, les sons et la météo restent propres à chaque appareil.
-- Supprimer son compte efface aussi la progression de l’Académie (compte commun).
-
-La clé Supabase présente dans `build.py` est la clé *publiable*, conçue pour être publique.
+Un seul compte pour toutes les académies (CMD & PowerShell, W203, tagalog) : e-mail ou nom d'utilisateur + mot de passe. La progression est synchronisée entre appareils ; sans compte, elle reste dans le navigateur et rejoint le compte à la première connexion (on garde le meilleur des deux). Supprimer son compte efface la progression des académies.
 
 ## Crédits
 
 - Météo : [Open-Meteo.com](https://open-meteo.com/) (CC BY 4.0), y compris la recherche de villes.
 - Nom de la ville à partir de la position : [BigDataCloud](https://www.bigdatacloud.com/) (API gratuite côté navigateur).
 - Liste des villes : découpage administratif et populations INSEE via Etalab (Licence Ouverte 2.0), coordonnées [GeoNames](https://www.geonames.org/) (CC BY 4.0).
-- supabase-js (MIT).
 
 ## Publication (GitHub Pages)
 
